@@ -5,6 +5,8 @@ This would be my third time making the exact same barebones C2 but with slight i
 
 Very heavily a WIP, C agent coming soon.
 
+![sample](https://i.imgur.com/5owJ9Cg.png)
+
 ## Compilation
 Only the `teamserver` needs to be compiled,
 ```bash
