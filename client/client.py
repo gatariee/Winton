@@ -34,6 +34,9 @@ class Client:
         except Exception as e:
             print(e)
 
+    def refresh_agents(self):
+        self.Agent_List = self.get_agents(self.Teamserver)
+
     def send_task(self, task: str):
         try:
             URL = self.Teamserver + "/tasks/" + self.AgentID
@@ -63,6 +66,10 @@ class Client:
         self.Teamserver = TEAMSERVER
 
     def display_agents(self):
+        if len(self.Agent_List) == 0:
+            print("[!] No agents registered")
+            return
+
         for num, agent in enumerate(self.Agent_List, start=1):
             print(f"{num}. {agent['Hostname']}@{agent['IP']} | {agent['UID']}")
     
@@ -84,13 +91,14 @@ class Client:
 if __name__ == "__main__":
     client = Client("http://127.0.0.1:50050")
     while True:
+        client.refresh_agents()
         client.display_agents()
         beacon_id = input("> ")
         
         if beacon_id == "exit":
             break
         
-        if beacon_id.isdigit():
+        elif beacon_id.isdigit():
             beacon_id = int(beacon_id)
             if beacon_id > len(client.Agent_List):
                 print("[!] Invalid agent ID")
@@ -115,3 +123,7 @@ if __name__ == "__main__":
                     task_response = client.get_results()
                     
                     print(task_response['results']) 
+            
+        else:
+            print("[!] Invalid agent ID")
+            continue

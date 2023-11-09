@@ -14,3 +14,12 @@ go build .
 chmod +x teamserver
 ./teamserver <ip> <port> <password>
 ```
+
+## Change Log
+
+#### 9/11/2023 - Beacons can now go offline!
+- If the callback from the last beacon is over `Agent.Sleep + 5` seconds, the beacon will be marked as down (_but should still listening for callbacks_).
+   - In its current state, the agent gets completely removed from the `AgentList[]` and `AgentCallbacks[]` if it goes offline, this will be changed in the future to allow for offline agents to still be in the list.
+    ![9/11/2023](https://i.imgur.com/CZm1eGe.png)
+- The change of beacon state is also reflected in the `AgentList[]` and `AgentCallbacks[]` tables
+    ![9/11/2023](https://i.imgur.com/p87EHej.png)

