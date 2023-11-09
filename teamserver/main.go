@@ -113,8 +113,9 @@ func registerHTTPListeners(r *gin.Engine) {
 			return
 		}
 
+		// return nothing
 		c.JSON(http.StatusNotFound, gin.H{
-			"message": "Agent not found or has no tasks.",
+			"message": "No tasks found",
 		})
 	})
 
@@ -176,8 +177,10 @@ func registerHTTPListeners(r *gin.Engine) {
 	r.POST("/results/:uid", func(c *gin.Context) {
 		uid := c.Param("uid")
 		var result Result
+		fmt.Println(c.Request.Body)
 
 		if err := c.BindJSON(&result); err != nil {
+
 			c.JSON(http.StatusBadRequest, gin.H{
 				"message": "Invalid JSON",
 				"error":   err.Error(),

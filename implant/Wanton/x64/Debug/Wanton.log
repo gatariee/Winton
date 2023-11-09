@@ -1,0 +1,8 @@
+﻿  Commands.c
+  Main.c
+C:\Users\PC\Desktop\git\WintonC2\implant\Wanton\Main.c(293,19): warning C4101: 'result': unreferenced local variable
+  Utils.c
+  Generating Code...
+C:\Users\PC\Desktop\git\WintonC2\implant\Wanton\Utils.c(75): warning C4715: 'http_post_json': not all control paths return a value
+C:\Users\PC\Desktop\git\WintonC2\implant\Wanton\Utils.c(49): warning C4715: 'http_get': not all control paths return a value
+  Wanton.vcxproj -> C:\Users\PC\Desktop\git\WintonC2\implant\Wanton\x64\Debug\Wanton.exe
