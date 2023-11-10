@@ -27,6 +27,7 @@ _A Makefile is not provided because I am lazy_
 - The agent is written in C and is extremely unstable! :D, and barely functional.
 - Currently only has support for `pwd`, but more commands will be added eventually.
     ![10/11/2023](https://i.imgur.com/D2nVffY.png)
+- This implant will probably be abandoned cos I hate parsing JSON in C, but this was a nice WinAPI sanity check.
 #### 9/11/2023 - Beacons can now go offline!
 - If the callback from the last beacon is over `Agent.Sleep + 5` seconds, the beacon will be marked as down (_but should still listening for callbacks_).
    - In its current state, the agent gets completely removed from the `AgentList[]` and `AgentCallbacks[]` if it goes offline, this will be changed in the future to allow for offline agents to still be in the list.
