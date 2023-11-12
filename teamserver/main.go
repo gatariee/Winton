@@ -238,7 +238,8 @@ func main() {
 		fmt.Println("Usage: ./teamserver <ip> <port> <password>")
 		os.Exit(1)
 	}
-	gin.SetMode(gin.ReleaseMode)
+
+	//gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 
 	registerHTTPListeners(r)

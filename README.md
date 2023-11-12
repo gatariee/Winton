@@ -15,7 +15,14 @@ chmod +x teamserver
 ./teamserver <ip> <port> <password>
 ```
 
-The `agent` has a MSVC solution file, compile the solution in `Release` mode (Windows):
+The Go agent `Wonton` is compiled to a single golang binary:
+```bash
+go build .
+chmod +x wonton
+./wonton
+```
+
+The C agent `Wanton` has a MSVC solution file, compile the solution in `Release` mode (not really maintained, probably broken):
 ```bash
 gcc -Wall -std=c99 -o Wanton.exe Commands.c Main.c Utils.c -lcurl
 ```
@@ -23,7 +30,17 @@ _A Makefile is not provided because I am lazy_
 
 ## Change Log
 
-#### 10/11/2023 - Winton now has an agent for Windows!
+#### 12/112023 - Wanton has a better (and much bigger) brother implant! (Wonton)
+- The [new implant](./implant/Wonton%20(GO)/) is written in Go.
+- Although this was much more convenient to write, Golang binaries have the downside being much larger than C binaries.
+    - The C implant is 75KB, the Go implant is 7,165KB.
+- The Go implant is also much more stable than the C implant, and has more features.
+    - The C implant will be removed in the future.
+- Currently has support for 2 commands: `whoami` and `ls`
+![12/11/2023](https://i.imgur.com/ZkIaKIw.png)
+![12/11/2023](https://i.imgur.com/lcZvWN7.png)
+
+#### 10/11/2023 - Winton now has an agent for Windows! (Wanton)
 - The agent is written in C and is extremely unstable! :D, and barely functional.
     - This implant will probably be abandoned cos I hate parsing JSON in C, but this was a nice WinAPI sanity check.
 - Currently only has support for `pwd`, but more commands will be added eventually.
