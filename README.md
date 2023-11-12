@@ -30,7 +30,7 @@ _A Makefile is not provided because I am lazy_
 
 ## Change Log
 
-#### 12/112023 - Wanton has a better (and much bigger) brother implant! (Wonton)
+#### 12/11/2023 - Wanton has a better (and much bigger) brother implant! (Wonton)
 - The [new implant](./implant/Wonton%20(GO)/) is written in Go.
 - Although this was much more convenient to write, Golang binaries have the downside being much larger than C binaries.
     - The C implant is 75KB, the Go implant is 7,165KB.
