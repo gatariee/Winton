@@ -89,11 +89,13 @@ class Client:
         self.AgentHostname = ""
         self.AgentIP = ""
 
+def beacon_called_home(client: Client, size: bytes):
+    print(f"[*] {client.AgentHostname} called home, sent: {size} bytes")
 
 def pretty_print_files(files):
     max_filename_len = max(len(file['Filename']) for file in files)
     
-
+    print("\n")
     for file in files:
 
         file_name = file["Filename"].split("\\")[-1]
@@ -107,7 +109,17 @@ def pretty_print_files(files):
         padding_width = max_filename_len - len(file_name)
 
         print(f"{file_name}{' ' * padding_width}\t{size_in_kb:.2f}KB\t{file_type}")
+    
+    print("\n")
 
+def _beacon_print(client: Client, task_response: dict):
+    response_size = sys.getsizeof(task_response)
+
+    beacon_called_home(client, response_size)
+
+    print(f'''
+{base64.b64decode(task_response["results"][0]["Result"]).decode()}
+    ''')
 
 if __name__ == "__main__":
     client = Client("http://127.0.0.1:50050")
@@ -146,9 +158,8 @@ if __name__ == "__main__":
 
                             task_response = client.get_results()
                             response_size = sys.getsizeof(task_response)
-                            print(
-                                f"[*] {client.AgentHostname} called home, sent: {response_size} bytes"
-                            )
+
+                            beacon_called_home(client, response_size)
 
                             files = json.loads(base64.b64decode(task_response["results"][0]["Result"]).decode())
                             pretty_print_files(files)
@@ -162,11 +173,24 @@ if __name__ == "__main__":
 
                             task_response = client.get_results()
                             response_size = sys.getsizeof(task_response)
-                            print(
-                                f"[*] {client.AgentHostname} called home, sent: {response_size} bytes"
-                            )
 
-                            print(base64.b64decode(task_response["results"][0]["Result"]).decode())
+
+                            _beacon_print(client, task_response)
+                        
+                        case "pwd":
+                            task_request = client.send_task(task)
+                            client.Tasks = task_request["uid"]
+
+                            print("[*] Waiting for beacon...")
+
+                            time.sleep(int(client.Beacon_Sleep) + 2)
+
+                            task_response = client.get_results()
+                            response_size = sys.getsizeof(task_response)
+
+
+                            _beacon_print(client, task_response)
+
                         case _:
                             print("[!] Invalid command")
                             continue
