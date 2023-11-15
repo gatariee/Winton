@@ -1,25 +1,42 @@
-# WintonC2
-Yet another Command & Control (C2) server using Golang...
+WintonC2
+==
 
-This would be my third time making the exact same barebones C2 but with slight improvements, this time I decided to learn Go while doing it because I was bored.
+_Yet another command and control framework written in Go_
 
-Very heavily a WIP, C agent coming soon.
+I wrote this for fun, and to learn more about beacon stability, opsec considerations in C2 and _to learn Golang (sorry for the bad code)_.
 
-![sample](https://i.imgur.com/5owJ9Cg.png)
+## Features
+
+### Teamserver
+> Written in Golang 1.21.1 (tested on Windows/AMD64)
+- Support for multiple listeners, but only HTTP is implemented
+- Multiple agents & asynchronous callbacks
+- Todo: HTTPS listener, authentication & internal API for operator interaction 
+
+### Implant
+> Written in Golang 1.21.1 (tested on Windows/AMD64) 
+- Beacon sleep defaults to `5` seconds, but can be changed by the operator at runtime.
+- Beacons will be marked as offline if the last callback is over `Agent.Sleep + 5` seconds, but will still be listening for callbacks.
+- Built-ins are implemented via the Golang standard library, may spawn cmd.exe
+- Todo: OPSEC considerations, post-exploitation capabilities, stability
+> Unstable C agent also available (Windows/AMD64)
+
+### Client
+> Written in Python 3.9+ 
+- Communicates directly with the `teamserver`
+- Interacts with beacons via POST /tasks/:uid & GET /results/:uid
 
 ## Compilation
 The `teamserver` compiles to a single golang binary:
 ```bash
-go build .
-chmod +x teamserver
-./teamserver <ip> <port> <password>
+cd ./teamserver && make 
+cd ./bin && ./teamserver <ip> <port> <password>
 ```
 
 The Go agent `Wonton` is compiled to a single golang binary:
 ```bash
-go build .
-chmod +x wonton
-./wonton
+cd './implan/Wonton (GO)\' && make
+cd ./bin && ./winton-win64.exe
 ```
 
 The C agent `Wanton` has a MSVC solution file, compile the solution in `Release` mode (not really maintained, probably broken):
