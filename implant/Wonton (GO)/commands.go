@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"os/exec"
 	"os/user"
 	"path/filepath"
 	"time"
@@ -93,4 +94,15 @@ func whoami() string {
 	}
 
 	return user.Username
+}
+
+func shell(command string) (string, error) {
+	cmd := exec.Command("cmd.exe", "/c", command)
+	stdout, err := cmd.Output()
+	if err != nil {
+		return "", err
+	}
+
+	return string(stdout), nil
+	
 }

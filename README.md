@@ -30,6 +30,24 @@ _A Makefile is not provided because I am lazy_
 
 ## Change Log
 
+#### 15/11/2023 - Mass codebase refactoring & implementation of shell commands 
+- The codebase has been refactored to be more modular and easier to read, (teamserver & go implant)
+    - Doesn't exactly follow Go best practices, but it's certainly better than before. 
+- The `teamserver` and `implant (go)` now have Makefiles and support for cross-compilation, see [here](./implant/Wonton%20(GO)/Makefile) and [here](./teamserver/Makefile) for more info.
+- Added support for `shell` commands in beacon
+    - Spawns `cmd.exe /c {task}`, not opsec safe.
+```go
+func shell(command string) (string, error) {
+cmd := exec.Command("cmd.exe", "/c", command)
+stdout, err := cmd.Output()
+if err != nil {
+    return "", err
+}
+return string(stdout), nil
+}
+```
+![15/11/2023](https://i.imgur.com/JVeojRf.png)
+
 #### 12/11/2023 - Wanton has a better (and much bigger) brother implant! (Wonton)
 - The [new implant](./implant/Wonton%20(GO)/) is written in Go.
 - Although this was much more convenient to write, Golang binaries have the downside being much larger than C binaries.

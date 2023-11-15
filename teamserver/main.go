@@ -13,8 +13,7 @@ func main() {
 	ts := NewTeamServer(os.Args[1], os.Args[2], os.Args[3])
 
 	_winton_print("Starting Teamserver on [" + ts.IP + ":" + ts.Port + "]")
-	// TODO: Separate API for agents and operators, operator will directly interact with the teamserver
-	// via the API at 50050
+	// TODO: Separate API for agents and operators, operator will directly interact with the teamserver via the API at 50050
 	// Agents will interact with the teamserver via the listener at 80
 
 	_winton_error("Only HTTP listener is currently supported, starting HTTP listener...")

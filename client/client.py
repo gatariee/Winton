@@ -95,7 +95,6 @@ def beacon_called_home(client: Client, size: bytes):
 def pretty_print_files(files):
     max_filename_len = max(len(file['Filename']) for file in files)
     
-    print("\n")
     for file in files:
 
         file_name = file["Filename"].split("\\")[-1]
@@ -104,7 +103,7 @@ def pretty_print_files(files):
         if file["IsDir"]:
             file_type = "Directory"
         else:
-            file_type = "File"
+            file_type = "\tFile"
 
         padding_width = max_filename_len - len(file_name)
 
@@ -113,13 +112,16 @@ def pretty_print_files(files):
     print("\n")
 
 def _beacon_print(client: Client, task_response: dict):
-    response_size = sys.getsizeof(task_response)
+    response_size = sys.getsizeof(task_response["results"][0]["Result"])
 
     beacon_called_home(client, response_size)
 
     print(f'''
 {base64.b64decode(task_response["results"][0]["Result"]).decode()}
     ''')
+
+def _pretty_print(data: str):
+    print(f"[*] {data}")
 
 if __name__ == "__main__":
     client = Client("http://127.0.0.1:80")
@@ -146,54 +148,82 @@ if __name__ == "__main__":
                     task = input(f"beacon> ")
                     if task == "!":
                         break
+                
+                    if task.split(" ")[0] == "shell":
+                        shell_command = task.split(" ")[1:]
+                        task = "shell"
 
-                    match task:
-                        case "ls":
-                            task_request = client.send_task(task)
-                            client.Tasks = task_request["uid"]
+                    try:
+                        match task:
+                            case "ls":
 
-                            print("[*] Waiting for beacon...")
+                                _pretty_print("Tasked beacon to list files in .")
 
-                            time.sleep(int(client.Beacon_Sleep) + 2)
+                                task_request = client.send_task("pwd")
+                                client.Tasks = task_request["uid"]
 
-                            task_response = client.get_results()
-                            response_size = sys.getsizeof(task_response)
+                                time.sleep(int(client.Beacon_Sleep) + 2)
 
-                            beacon_called_home(client, response_size)
+                                task_response = client.get_results()
+                                cwd = base64.b64decode(task_response['results'][0]['Result']).decode()
 
-                            files = json.loads(base64.b64decode(task_response["results"][0]["Result"]).decode())
-                            pretty_print_files(files)
-                        case "whoami":
-                            task_request = client.send_task(task)
-                            client.Tasks = task_request["uid"]
+                                task_request = client.send_task(task)
+                                client.Tasks = task_request["uid"]
 
-                            print("[*] Waiting for beacon...")
+                                time.sleep(int(client.Beacon_Sleep) + 2)
 
-                            time.sleep(int(client.Beacon_Sleep) + 2)
+                                task_response = client.get_results()
+                                response_size = sys.getsizeof(task_response['results'][0]['Result'])
 
-                            task_response = client.get_results()
-                            response_size = sys.getsizeof(task_response)
+                                beacon_called_home(client, response_size)
+                                print(f"[+] Directory listing for '{cwd}'\n")
 
+                                files = json.loads(base64.b64decode(task_response["results"][0]["Result"]).decode())
+                                pretty_print_files(files)
+                            case "whoami":
 
-                            _beacon_print(client, task_response)
-                        
-                        case "pwd":
-                            task_request = client.send_task(task)
-                            client.Tasks = task_request["uid"]
+                                _pretty_print("Tasked beacon to get current user")
 
-                            print("[*] Waiting for beacon...")
+                                task_request = client.send_task(task)
+                                client.Tasks = task_request["uid"]
 
-                            time.sleep(int(client.Beacon_Sleep) + 2)
+                                time.sleep(int(client.Beacon_Sleep) + 2)
 
-                            task_response = client.get_results()
-                            response_size = sys.getsizeof(task_response)
+                                task_response = client.get_results()
 
+                                _beacon_print(client, task_response)
+                            
+                            case "pwd":
+                                _pretty_print("Tasked beacon to get current working directory")
 
-                            _beacon_print(client, task_response)
+                                task_request = client.send_task(task)
+                                client.Tasks = task_request["uid"]
 
-                        case _:
-                            print("[!] Invalid command")
-                            continue
+                                time.sleep(int(client.Beacon_Sleep) + 2)
+
+                                task_response = client.get_results()
+
+                                _beacon_print(client, task_response)
+
+                            case "shell":
+                                _pretty_print("Tasked beacon to run a shell command")
+                                _pretty_print(f"Command: {' '.join(shell_command)}")
+
+                                task_request = client.send_task(task + " " + " ".join(shell_command))
+                                client.Tasks = task_request["uid"]
+
+                                time.sleep(int(client.Beacon_Sleep) + 2)
+
+                                task_response = client.get_results()
+
+                                _beacon_print(client, task_response)
+
+                            case _:
+                                print("[!] Invalid command")
+                                continue
+                    except Exception as e:
+                        print(f"[!] Error sending task: {e}")
+                        continue
 
         else:
             print("[!] Invalid agent ID")
