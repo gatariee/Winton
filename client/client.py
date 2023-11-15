@@ -122,7 +122,7 @@ def _beacon_print(client: Client, task_response: dict):
     ''')
 
 if __name__ == "__main__":
-    client = Client("http://127.0.0.1:50050")
+    client = Client("http://127.0.0.1:80")
     while True:
         client.refresh_agents()
         client.display_agents()

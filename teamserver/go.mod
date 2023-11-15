@@ -1,4 +1,4 @@
-module wintonc2
+module teamserver
 
 go 1.21.1
 

