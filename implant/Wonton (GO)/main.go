@@ -128,7 +128,7 @@ func main() {
 			return
 		}
 
-		fmt.Println(json_data)
+		//fmt.Println(json_data)
 		if json_data["message"] == "No tasks found" {
 			fmt.Println("[*] No tasks found, going back to sleep...")
 			continue

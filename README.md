@@ -5,8 +5,9 @@ _Yet another command and control framework written in Go_
 
 I wrote this for fun, and to learn more about beacon stability, opsec considerations in C2 and _to learn Golang (sorry for the bad code)_.
 
-## Features
+![WintonC2](https://i.gyazo.com/e10bcbdd23217af2032ba1de39639ed5.png)
 
+## Features
 ### Teamserver
 > Written in Golang 1.21.1 (tested on Windows/AMD64)
 - Support for multiple listeners, but only HTTP is implemented
