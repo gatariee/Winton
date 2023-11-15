@@ -20,6 +20,7 @@ I wrote this for fun, and to learn more about beacon stability, opsec considerat
 - Built-ins are implemented via the Golang standard library, may spawn cmd.exe
 - Todo: OPSEC considerations, post-exploitation capabilities, stability
 > Unstable C agent also available (Windows/AMD64)
+- Stupidly unstable, please don't use this lol.
 
 ### Client
 > Written in Python 3.9+ 
