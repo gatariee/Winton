@@ -1,9 +1,10 @@
 ![Winton](https://i.imgur.com/Pmrv5t7.png)
 
-<h1 align="center">WintonC2</h1>
+<div align="center">
+<h1>WintonC2</h1>
 
-<i align="center">Yet another Command and Control (C2) framework written in Go</i>
-
+<i>Yet another Command and Control (C2) framework written in Go</i>
+</div>
 I wrote this to learn more about C2 internals, OPSEC considerations in beacon and to learn Golang _(i still can't get function imports to work)_.
 
 
