@@ -1,11 +1,11 @@
-WintonC2
-==
+![Winton](https://i.imgur.com/Pmrv5t7.png)
+
+# WintonC2
 
 _Yet another Command and Control (C2) framework written in Go_
 
 I wrote this to learn more about C2 internals, OPSEC considerations in beacon and to learn Golang _(i still can't get function imports to work)_.
 
-![Winton](https://i.imgur.com/Pmrv5t7.png)
 
 ## Features
 ### Teamserver
