@@ -19,7 +19,7 @@ I wrote this for fun, and to learn more about beacon stability, opsec considerat
 - Built-ins are implemented via the Golang standard library, may spawn cmd.exe
 - Supported commands: `ls`, `whoami`, `pwd`, `shell`, `ps`, `getpid`, `inject`
 - Process Injection via `CreateRemoteThread`
-- 
+  
 ![WintonC2](https://i.gyazo.com/e10bcbdd23217af2032ba1de39639ed5.png)
 
 ### Client
