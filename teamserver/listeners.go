@@ -184,6 +184,7 @@ func (ts *TeamServer) registerHTTPListeners(r *gin.Engine) {
 				ts.AgentResults = append(ts.AgentResults, result)
 				ts.AgentTasks = append(ts.AgentTasks[:i], ts.AgentTasks[i+1:]...)
 				c.JSON(http.StatusOK, gin.H{"message": "Result received successfully"})
+
 				return
 			}
 		}

