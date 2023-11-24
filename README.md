@@ -1,9 +1,9 @@
 WintonC2
 ==
 
-_Yet another command and control framework written in Go_
+_Yet another Command and Control (C2) framework written in Go_
 
-I wrote this for fun, and to learn more about beacon stability, opsec considerations in C2 and _to learn Golang (sorry for the bad code)_.
+I wrote this to learn more about C2 internals, OPSEC considerations in beacon and to learn Golang _(i still can't get function imports to work)_.
 
 ![Winton](https://i.imgur.com/Pmrv5t7.png)
 
