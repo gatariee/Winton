@@ -2,7 +2,7 @@
 
 <h1 align="center">WintonC2</h1>
 
-_Yet another Command and Control (C2) framework written in Go_
+<div align="center">_Yet another Command and Control (C2) framework written in Go_</div>
 
 I wrote this to learn more about C2 internals, OPSEC considerations in beacon and to learn Golang _(i still can't get function imports to work)_.
 
