@@ -1,6 +1,6 @@
 ![Winton](https://i.imgur.com/Pmrv5t7.png)
 
-# WintonC2
+<h1 align="center">WintonC2</h1>
 
 _Yet another Command and Control (C2) framework written in Go_
 
