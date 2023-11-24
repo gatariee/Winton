@@ -16,17 +16,13 @@ I wrote this for fun, and to learn more about beacon stability, opsec considerat
 
 ### Implant
 > Written in Golang 1.21.1 (tested on Windows/AMD64) 
-- Beacon sleep defaults to `5` seconds, but can be changed by the operator at runtime.
-- Beacons will be marked as offline if the last callback is over `Agent.Sleep + 5` seconds, but will still be listening for callbacks.
 - Built-ins are implemented via the Golang standard library, may spawn cmd.exe
-- Todo: OPSEC considerations, post-exploitation capabilities, stability
-> Unstable C agent also available (Windows/AMD64)
-- Stupidly unstable, please don't use this lol.
+- Supported commands: `ls`, `whoami`, `pwd`, `shell`, `ps`, `getpid`, `inject`
+- Process Injection via `CreateRemoteThread`
 
 ### Client
 > Written in Python 3.9+ 
 - Communicates directly with the `teamserver`
-- Interacts with beacons via POST /tasks/:uid & GET /results/:uid
 
 ## Compilation
 The `teamserver` compiles to a single golang binary:
