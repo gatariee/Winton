@@ -5,7 +5,7 @@ _Yet another command and control framework written in Go_
 
 I wrote this for fun, and to learn more about beacon stability, opsec considerations in C2 and _to learn Golang (sorry for the bad code)_.
 
-![WintonC2](https://i.gyazo.com/e10bcbdd23217af2032ba1de39639ed5.png)
+![Winton](https://i.imgur.com/Pmrv5t7.png)
 
 ## Features
 ### Teamserver
@@ -19,6 +19,8 @@ I wrote this for fun, and to learn more about beacon stability, opsec considerat
 - Built-ins are implemented via the Golang standard library, may spawn cmd.exe
 - Supported commands: `ls`, `whoami`, `pwd`, `shell`, `ps`, `getpid`, `inject`
 - Process Injection via `CreateRemoteThread`
+- 
+![WintonC2](https://i.gyazo.com/e10bcbdd23217af2032ba1de39639ed5.png)
 
 ### Client
 > Written in Python 3.9+ 
