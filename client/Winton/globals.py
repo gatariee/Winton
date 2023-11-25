@@ -35,5 +35,25 @@ Tasks: list[Command] = [
         "name": "inject",
         "description": "Inject shellcode",
         "usage": "inject <PID> <path_to_binfile>"
+    },
+    {
+        "name": "help",
+        "description": "Display this help menu",
+        "usage": "help"
+    },
+    {
+        "name": "clear",
+        "description": "Clear the console",
+        "usage": "clear"
+    },
+    {
+        "name": "exit",
+        "description": "Exit the program",
+        "usage": "exit"
+    },
+    {
+        "name": "winton",
+        "description": "Winton?",
+        "usage": "monkey"
     }
 ]

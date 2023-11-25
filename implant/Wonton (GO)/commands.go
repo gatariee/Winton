@@ -105,7 +105,8 @@ func shell(command string) (string, error) {
 	cmd := exec.Command("cmd.exe", "/c", command)
 	stdout, err := cmd.Output()
 	if err != nil {
-		return "", err
+		// return err.Error()
+		return string(stdout), err
 	}
 
 	return string(stdout), nil

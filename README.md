@@ -8,26 +8,30 @@
 
 I wrote this to learn more about C2 internals, OPSEC considerations in beacon and to learn Golang _(i still can't get function imports to work)_.
 
+![Cover](https://i.imgur.com/xhTM1va.png)
+
 > 🐒 Winton was designed solely for educational purposes, and is still in early stages of development and may be unstable. 
 
 ## Features
 ### Teamserver
-> Written in Golang 1.21.1 (tested on Windows/AMD64)
-- Support for multiple listeners, but only HTTP is implemented
+> Written in Golang 1.21.1 with Gin (tested on Windows/AMD64)
+- Support for multiple listeners- only HTTP is implemented
 - Multiple agents & asynchronous callbacks
-- Todo: HTTPS listener, authentication & internal API for operator interaction 
 
 ### Implant
 > Written in Golang 1.21.1 (tested on Windows/AMD64) 
-- Built-ins are implemented via the Golang standard library, may spawn cmd.exe
-- Supported commands: `ls`, `whoami`, `pwd`, `shell`, `ps`, `getpid`, `inject`
-- Process Injection via `CreateRemoteThread`
+- OPSEC Considerations
+    - Heavy reliance on Golang's `os/exec` and `os/user` packages for cross-platform compatibility and built-ins (`whoami`, `pwd`, `ls`), may be OPSEC unsafe.
+    - `inject` uses `CreateRemoteThread` and doesn't check for architecture, may result in the process and/or shellcode crashing- use `ps` to check for architecture before injection.
+        - `ps` uses the `syscall` and `golang.org/x/sys/windows` package to access the WinAPIs, see [source](./implant/Wonton%20(GO)/commands.go#L160)
+- Updated list of supported commands available: [here](./client/Winton/globals.py#)
   
-![WintonC2](https://i.gyazo.com/e10bcbdd23217af2032ba1de39639ed5.png)
-
 ### Client
-> Written in Python 3.9+ 
-- Communicates directly with the `teamserver`
+> Dark themed UI written in Python with Tkinter
+- Supports interaction with multiple agents & asynchronous callbacks via multithreading
+
+![Client](https://i.imgur.com/SLLtTob.png)
+
 
 ## Compilation
 The `teamserver` compiles to a single golang binary:
@@ -49,6 +53,13 @@ gcc -Wall -std=c99 -o Wanton.exe Commands.c Main.c Utils.c -lcurl
 _A Makefile is not provided because I am lazy_
 
 ## Change Log
+
+#### 26/11/2023 - Finally, a GUI client.
+- The client is written in Python with Tkinter, and is multithreaded to support multiple agents and asynchronous callbacks.
+- Python API for Winton has been refactored to be more modular and easier to use (because I realized I had to convert the CLI client to a GUI).
+- The client is still in early stages of development, and may or may not be stable.
+
+![26/11/2023](https://i.imgur.com/bZUMs4B.png)
 
 #### 24/11/2023 - Shellcode Injection via CreateRemoteThread (Session Passing)
 - 2 new commands: `ps` and `inject`
