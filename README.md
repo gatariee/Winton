@@ -1,14 +1,14 @@
 ![Winton](https://i.imgur.com/Pmrv5t7.png)
 
 <div align="center">
-<h1>WintonC2</h1>
+<h1>Winton</h1>
 
 <i>Yet another Command and Control (C2) framework written in Go</i>
 </div>
 
 I wrote this to learn more about C2 internals, OPSEC considerations in beacon and to learn Golang _(i still can't get function imports to work)_.
 
-> 🐒 WintonC2 was designed solely for educational purposes, and is still in early stages of development and may be unstable. 
+> 🐒 Winton was designed solely for educational purposes, and is still in early stages of development and may be unstable. 
 
 ## Features
 ### Teamserver
