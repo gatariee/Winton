@@ -8,7 +8,7 @@
 
 I wrote this to learn more about C2 internals, OPSEC considerations in beacon and to learn Golang _(i still can't get function imports to work)_.
 
-> WintonC2 was designed solely for educational purposes, and is still in early stages of development and may be unstable. 
+> 🐒 WintonC2 was designed solely for educational purposes, and is still in early stages of development and may be unstable. 
 
 ## Features
 ### Teamserver
