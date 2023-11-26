@@ -6,7 +6,7 @@
 <i>Yet another Command and Control (C2) framework written in Golang</i>
 </div>
 
-Winton is an open-source cross-platform C2 framework written for the purposes of adversary simulation and red teaming, and is heavily inspired by the [Havoc](https://github.com/HavocFramework/Havoc) Framework by [@C5pider](https://twitter.com/C5pider)
+Winton is an open-source cross-platform C2 framework written for the purposes of adversary emulation and red teaming, and is heavily inspired by the [Havoc](https://github.com/HavocFramework/Havoc) Framework by [@C5pider](https://twitter.com/C5pider)
 
 > 🐒 Winton was designed solely for educational purposes, and is still in early stages of development and may be unstable. 
 
