@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 
 from UserInterface.widgets.winton import Winton
 from Utils.beacon import dispatch
