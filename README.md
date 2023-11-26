@@ -1,4 +1,4 @@
-![Winton](https://i.imgur.com/Pmrv5t7.png)
+![Winton](./assets/Winton_Logo.png)
 
 <div align="center">
     <h1>Winton</h1>
@@ -10,7 +10,7 @@ Winton is an open-source cross-platform Command and Control (C2) framework writt
 
 > 🐒 Winton was designed solely for educational purposes, and is still in early stages of development and may be unstable. 
 
-![Cover](https://i.imgur.com/xhTM1va.png)
+![Cover](./assets/Winton_Banner.png)
 
 > This project was made to learn more about C2 internals, OPSEC considerations in beacon and to learn Golang _(i still can't get function imports to work)_.
 
@@ -56,7 +56,7 @@ Winton is an open-source cross-platform Command and Control (C2) framework writt
 - Supports interaction with multiple agents & asynchronous callbacks via multithreading
 - Heavy reliance on Winton's Python API, see [Python API References](#python-api-references) for more info.
 - Updated list of supported commands available: [here](./client/Winton/globals.py#)
-![Help](https://i.imgur.com/m2dU3fI.png)
+![Help](./assets/Client_help.png)
 
 ## Installation
 ### Winton
@@ -118,7 +118,7 @@ chmod +x ./winton.py
 - `shell` pipes the input of the operator to `cmd.exe /c {task}`, which spawns a new `cmd.exe` process on the target and returns the output via `stdout` & `stderr`.
 - Heavy reliance on Golang's `os/exec` and `os/user` packages for cross-platform compatibility and built-ins (`whoami`, `pwd`, `ls`), may be OPSEC unsafe.
 - `inject` uses `CreateRemoteThread` and doesn't check for architecture, may result in the process and/or shellcode crashing- use `ps` to check for architecture before injection.
-![Client](https://i.imgur.com/SLLtTob.png)
+![Client](./assets/Client_ps.png)
     - `VirtualAllocEx` is called with PAGE_EXECUTE_READWRITE & unbacked memory allocation
     - Thread start address is `0x0`
 > ⚠️ Beacon instability mainly caused by the implementation of task queuing and tagging in the teamserver, there is a permanent race condition between the teamserver and the implant that causes the implant to crash if the teamserver sends a task to the implant while the implant is still processing a task.
@@ -127,7 +127,7 @@ chmod +x ./winton.py
 - Unencrypted communication with the teamserver over HTTP
 - Authentication with teamserver not implemented yet
 - Interacts with the listener rather than the teamserver, the operator should be interacting with the internal teamserver API instead of the listener. (modularity)
-![Client](https://i.imgur.com/RnbUGGK.png)
+![Client](./assets/Operator_interaction.png)
 
 ### Teamserver
 - Unencrypted communication with the implant over HTTP
