@@ -1,4 +1,3 @@
-
 import base64
 import json
 import sys
@@ -8,13 +7,15 @@ from tkinter import ttk, scrolledtext, END, font
 
 from Winton.client import Client
 from Winton.standalone import get_task_response
+from Winton.globals import Teamserver
+from Winton.types import ResultList
 
-from UserInterface.colors import colors
+from UserInterface.globals import colors
 from Utils.print import pretty_print_ls, handle_help__str__, handle_winton
 
 
 class AgentTab(ttk.Frame):
-    def __init__(self, container, agent_name, **kwargs):
+    def __init__(self, container: ttk.Notebook, agent_name: str, **kwargs):
         super().__init__(container, **kwargs)
         self.agent_name = agent_name
         self.uid = agent_name.split(" | ")[-1]
@@ -83,8 +84,7 @@ class AgentTab(ttk.Frame):
         )
 
     def initialize_client(self):
-        TEAMSERVER = "http://127.0.0.1:80"
-        self.client = Client(TEAMSERVER)
+        self.client = Client(Teamserver)
         self.client.refresh_agents()
         for num, agent in enumerate(self.client.Agent_List, start=1):
             if agent["UID"] == self.uid:
@@ -114,6 +114,34 @@ class AgentTab(ttk.Frame):
         self.command_entry.bind("<Return>", self.run_command)
         self.command_entry.bind("<Key>", self.prevent_prompt_deletion)
 
+        self.command_entry.bind("<Up>", self.prev_command)
+        self.command_entry.bind("<Down>", self.next_command)
+        self.command_history = []
+        self.history_index = 0
+    
+    def prev_command(self, event):
+        if self.command_history and self.history_index > 0:
+            self.history_index -= 1
+            self.command_entry.delete(0, tk.END)
+            self.command_entry.insert(0, self.prompt + self.command_history[self.history_index])
+            self.command_entry.icursor(tk.END)
+            return "break"
+
+    def next_command(self, event):
+        if self.command_history and self.history_index < len(self.command_history) - 1:
+            self.history_index += 1
+            self.command_entry.delete(0, tk.END)
+            self.command_entry.insert(0, self.prompt + self.command_history[self.history_index])
+            self.command_entry.icursor(tk.END)
+            return "break"
+        elif self.command_history and self.history_index == len(self.command_history) - 1:
+            self.history_index += 1
+            self.command_entry.delete(0, tk.END)
+            self.command_entry.insert(0, self.prompt)
+            self.command_entry.icursor(tk.END)
+            return "break"
+    
+
     def prevent_prompt_deletion(self, event):
         if event.keysym in ("BackSpace", "Delete", "Left") and self.command_entry.index(
             tk.INSERT
@@ -131,6 +159,8 @@ class AgentTab(ttk.Frame):
             self.command_entry.delete(0, tk.END)
             self.command_entry.insert(0, self.prompt)
             self.execute_task(command)
+            self.command_history.append(command)
+            self.history_index = len(self.command_history)
 
         else:
             self.command_entry.delete(0, tk.END)
@@ -154,75 +184,75 @@ class AgentTab(ttk.Frame):
         self.display_task_response(task_response)
 
     def run_task(self, command: str):
-
         if command.startswith("shell"):
             self.handle_shell(command)
             return
         
-
         match command:
-
             case "clear":
-                self.output_text.delete(1.0, tk.END)
-            
+                self.handle_clear()
             case "help":
-                package = handle_help__str__()
-                self.output_text.insert(tk.END, package)
-            
+                self.handle_help()
             case "winton":
-                package = handle_winton()
-                self.output_text.insert(tk.END, package)
-
+                self.handle_winton()
             case "pwd":
-                self.output_text.insert(
-                    tk.END, f"[*] Tasked beacon to get current working directory\n"
-                )
-                self.scroll_to_end()
-                task_response = get_task_response(self.client, command)
-                self.display_task_response(task_response)
-
+                self.handle_pwd()
             case "ls":
-                self.output_text.insert(
-                    tk.END, f"[*] Tasked beacon to list directory contents\n"
-                )
-                self.scroll_to_end()
-                task_response = get_task_response(self.client, command)
-                files = json.loads(
-                    base64.b64decode(task_response["results"][0]["Result"]).decode()
-                )
-                package = pretty_print_ls(files, self.client)
-                self.output_text.insert(tk.END, package)
-
+                self.handle_ls()
             case "whoami":
-                self.output_text.insert(
-                    tk.END, f"[*] Tasked beacon to get current user\n"
-                )
-                self.scroll_to_end()
-                task_response = get_task_response(self.client, command)
-                self.display_task_response(task_response)
-
+                self.handle_whoami()
             case "ps":
-                self.output_text.insert(
-                    tk.END, f"[*] Tasked beacon to list processes\n"
-                )
-                self.scroll_to_end()
-                task_response = get_task_response(self.client, command)
-                self.display_task_response(task_response)
-
+                self.handle_ps()
             case "getpid":
-                self.output_text.insert(
-                    tk.END, f"[*] Tasked beacon to get current process ID\n"
-                )
-                self.scroll_to_end()
-                task_response = get_task_response(self.client, command)
-                self.display_task_response(task_response)
-
+                self.handle_getpid()
             case _:
-                self.output_text.insert(tk.END, "[!] Not implemented yet!\n")
-            
+                self.handle_default()
+
         self.scroll_to_end()
 
-    def display_task_response(self, task_response):
+    def handle_clear(self):
+        self.output_text.delete(1.0, tk.END)
+
+    def handle_help(self):
+        package = handle_help__str__()
+        self.output_text.insert(tk.END, package)
+
+    def handle_winton(self):
+        package = handle_winton()
+        self.output_text.insert(tk.END, package)
+
+    def handle_pwd(self):
+        self.generic_task_handler("pwd", "get current working directory")
+
+    def handle_ls(self):
+        self.output_text.insert(tk.END, f"[*] Tasked beacon to list files in .\n")
+        task_response = get_task_response(self.client, "ls")
+        files = json.loads(
+            base64.b64decode(task_response["results"][0]["Result"]).decode()
+        )
+        package = pretty_print_ls(files, self.client)
+        self.output_text.insert(tk.END, package)
+
+    def handle_whoami(self):
+        self.generic_task_handler("whoami", "get current user")
+
+    def handle_ps(self):
+        self.generic_task_handler("ps", "get processes")
+
+    def handle_getpid(self):
+        self.generic_task_handler("getpid", "getcurrent process ID")
+
+    def handle_default(self):
+        self.output_text.insert(tk.END, "[!] Not implemented yet!\n")
+
+    def generic_task_handler(self, command: str, task_description: str):
+        self.output_text.insert(tk.END, f"[*] Tasked beacon to {task_description}\n")
+        task_response = get_task_response(self.client, command)
+        self.display_task_response(task_response)
+
+
+    def display_task_response(self, task_response: ResultList):
+        print(task_response)
         if "results" in task_response and len(task_response["results"]) > 0:
             response_size = sys.getsizeof(task_response["results"][0]["Result"])
             self.output_text.insert(

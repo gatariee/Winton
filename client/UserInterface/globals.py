@@ -1,4 +1,8 @@
-colors = {
+"""
+Contains global variables for the Python GUI UserInterface
+"""
+
+colors: list[str] = {
     "background": "#1e1e1e",
     "foreground": "#c7c7c7",
     "button_background": "#333333",

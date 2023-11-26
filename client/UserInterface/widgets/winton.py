@@ -1,19 +1,26 @@
 import tkinter as tk
 from tkinter import ttk, END, font
 
-from UserInterface.colors import colors
+from UserInterface.globals import colors
 from UserInterface.widgets.agent import AgentTab
 
+from Winton.types import Agent
+
 class Winton(tk.Tk):
-    def __init__(self, agents):
+    def __init__(self, fetch_agents, **kwargs):
         super().__init__()
         self.title("Winton")
         self.configure(bg=colors["background"])
         self.geometry("1400x800")
-        self.agents = agents
+        self.fetch_agents = fetch_agents
+        self.agents = self.fetch_agents()
+        
         self.setup_style()
         self.setup_notebook()
-        self.populate_agents(agents)
+        self.populate_agents(self.agents)
+        self.schedule_agent_update()
+    
+
 
     def setup_style(self):
         modern_font = font.nametofont("TkDefaultFont")
@@ -89,11 +96,18 @@ class Winton(tk.Tk):
         )
         self.agent_listbox.bind("<Double-1>", self.on_agent_double_click)
 
-    def populate_agents(self, agents):
+    def populate_agents(self, agents: list[Agent]):
+        self.agent_listbox.delete(0, END) 
         for agent in agents:
             self.agent_listbox.insert(
                 END, f"{agent['Hostname']} @ {agent['IP']} | {agent['UID']}"
             )
+        
+    def schedule_agent_update(self):
+        self.agents = self.fetch_agents()
+        self.populate_agents(self.agents)
+        self.after(5000, self.schedule_agent_update) 
+
 
     def on_agent_double_click(self, event):
         selection = self.agent_listbox.curselection()
@@ -101,7 +115,7 @@ class Winton(tk.Tk):
             agent_name = self.agent_listbox.get(selection)
             self.open_agent_tab(agent_name)
 
-    def open_agent_tab(self, agent_name):
+    def open_agent_tab(self, agent_name: str):
         tab_names = [self.notebook.tab(tab, "text") for tab in self.notebook.tabs()]
         if agent_name not in tab_names:
             agent_tab = AgentTab(self.notebook, agent_name)

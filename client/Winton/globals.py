@@ -57,3 +57,5 @@ Tasks: list[Command] = [
         "usage": "monkey"
     }
 ]
+
+Teamserver = "http://127.0.0.1:80"
