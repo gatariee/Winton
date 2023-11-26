@@ -25,7 +25,12 @@ I wrote this to learn more about C2 internals, OPSEC considerations in beacon an
     - `inject` uses `CreateRemoteThread` and doesn't check for architecture, may result in the process and/or shellcode crashing- use `ps` to check for architecture before injection.
         - `ps` uses the `syscall` and `golang.org/x/sys/windows` package to access the WinAPIs, see [source](./implant/Wonton%20(GO)/commands.go#L160)
 - Updated list of supported commands available: [here](./client/Winton/globals.py#)
-  
+- There are 2 implants available:
+    - `Orisa` is written in C and is extremely unstable, and has limited functionality to `ls`, `pwd` and `whoami`.
+    - `Sigma` is written in Golang and is much more stable, and has more functionality than `Orisa`.
+        - `Sigma` is still in early stages of development, and may be unstable.
+        - `Sigma` is the recommended implant to use.
+
 ### Client
 > Dark themed UI written in Python with Tkinter
 - Supports interaction with multiple agents & asynchronous callbacks via multithreading

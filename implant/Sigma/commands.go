@@ -20,22 +20,18 @@ type File struct {
 	ModTime  time.Time
 }
 
-func get_folder_size(path string) (int64, error) {
-	var size int64
-
-	err := filepath.Walk(path, func(filePath string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if !info.IsDir() {
-			size += info.Size()
-		}
-
-		return nil
-	})
-
-	return size, err
+func getFolderSize(path string) (int64, error) {
+    var size int64
+    err := filepath.Walk(path, func(filePath string, info os.FileInfo, err error) error {
+        if err != nil {
+            return err
+        }
+        if !info.IsDir() {
+            size += info.Size()
+        }
+        return nil
+    })
+    return size, err
 }
 
 func pwd() string {
@@ -48,48 +44,34 @@ func pwd() string {
 }
 
 func ls(path string) ([]File, error) {
-	dir, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer dir.Close()
+    dir, err := os.Open(path)
+    if err != nil {
+        return nil, err
+    }
+    defer dir.Close()
 
-	fileInfos, err := dir.Readdir(-1)
-	if err != nil {
-		return nil, err
-	}
+    fileInfos, err := dir.Readdir(-1)
+    if err != nil {
+        return nil, err
+    }
 
-	var files []File
-
-	for _, fileInfo := range fileInfos {
-		if fileInfo.IsDir() {
-			size, err := get_folder_size(path + "/" + fileInfo.Name())
-			if err != nil {
-				return nil, err
-			}
-
-			file := File{
-				Filename: fileInfo.Name(),
-				Size:     size,
-				IsDir:    fileInfo.IsDir(),
-				ModTime:  fileInfo.ModTime(),
-			}
-
-			files = append(files, file)
-
-		} else {
-			file := File{
-				Filename: fileInfo.Name(),
-				Size:     fileInfo.Size(),
-				IsDir:    fileInfo.IsDir(),
-				ModTime:  fileInfo.ModTime(),
-			}
-
-			files = append(files, file)
-		}
-	}
-
-	return files, nil
+    files := make([]File, len(fileInfos))
+    for i, fileInfo := range fileInfos {
+        size := fileInfo.Size()
+        if fileInfo.IsDir() {
+            size, err = getFolderSize(filepath.Join(path, fileInfo.Name()))
+            if err != nil {
+                return nil, err
+            }
+        }
+        files[i] = File{
+            Filename: fileInfo.Name(),
+            Size:     size,
+            IsDir:    fileInfo.IsDir(),
+            ModTime:  fileInfo.ModTime(),
+        }
+    }
+    return files, nil
 }
 
 func whoami() string {
@@ -102,14 +84,34 @@ func whoami() string {
 }
 
 func shell(command string) (string, error) {
-	cmd := exec.Command("cmd.exe", "/c", command)
-	stdout, err := cmd.Output()
+    cmd := exec.Command("cmd.exe", "/c", command)
+    output, err := cmd.CombinedOutput()
+    return string(output), err
+}
+
+func cat(filename string) (string, error) {
+	// read file without using cmd
+
+	file, err := os.Open(filename)
 	if err != nil {
-		// return err.Error()
-		return string(stdout), err
+		return "", err
 	}
 
-	return string(stdout), nil
+	defer file.Close()
+
+	buf := make([]byte, 1024)
+	var output string
+
+	for {
+		n, err := file.Read(buf)
+		if err != nil {
+			break
+		}
+
+		output += string(buf[:n])
+	}
+
+	return output, nil
 }
 
 func getProcessArch(processHandle windows.Handle) (string, error) {

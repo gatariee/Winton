@@ -156,6 +156,7 @@ class AgentTab(ttk.Frame):
         if command_with_prompt.startswith(self.prompt):
             command = command_with_prompt[len(self.prompt) :]
             self.output_text.insert(tk.END, f"{command_with_prompt}\n")
+            self.scroll_to_end()
             self.command_entry.delete(0, tk.END)
             self.command_entry.insert(0, self.prompt)
             self.execute_task(command)
@@ -173,20 +174,15 @@ class AgentTab(ttk.Frame):
         task_thread = threading.Thread(target=self.run_task, args=(command,))
         task_thread.start()
 
-    def handle_shell(self, command: str):
-        self.output_text.insert(
-            tk.END, f"[*] Tasked beacon to execute shell command: {command}\n"
-        )
-        self.scroll_to_end()
-        task_response = get_task_response(
-            self.client, "shell", " ".join(command.split(" ")[1:])
-        )
-        self.display_task_response(task_response)
-
     def run_task(self, command: str):
         if command.startswith("shell"):
             self.handle_shell(command)
             return
+    
+        if command.startswith("cat"):
+            self.handle_cat(command)
+            return
+            
         
         match command:
             case "clear":
@@ -224,6 +220,26 @@ class AgentTab(ttk.Frame):
     def handle_pwd(self):
         self.generic_task_handler("pwd", "get current working directory")
 
+    def handle_shell(self, command: str):
+        self.output_text.insert(
+            tk.END, f"[*] Tasked beacon to execute shell command: {command}\n"
+        )
+        self.scroll_to_end()
+        task_response = get_task_response(
+            self.client, "shell", " ".join(command.split(" ")[1:])
+        )
+        self.display_task_response(task_response)
+    
+    def handle_cat(self, command: str):
+        self.output_text.insert(
+            tk.END, f"[*] Tasked beacon to read contents of file: {command[4:]}\n"
+        )
+        self.scroll_to_end()
+        task_response = get_task_response(
+            self.client, "cat", " ".join(command.split(" ")[1:])
+        )
+        self.display_task_response(task_response)
+
     def handle_ls(self):
         self.output_text.insert(tk.END, f"[*] Tasked beacon to list files in .\n")
         task_response = get_task_response(self.client, "ls")
@@ -252,7 +268,6 @@ class AgentTab(ttk.Frame):
 
 
     def display_task_response(self, task_response: ResultList):
-        print(task_response)
         if "results" in task_response and len(task_response["results"]) > 0:
             response_size = sys.getsizeof(task_response["results"][0]["Result"])
             self.output_text.insert(

@@ -11,6 +11,13 @@ Tasks: list[Command] = [
         "description": "Get current user",
         "usage": "whoami"
     },
+
+    {
+        "name": "cat",
+        "description": "Read file",
+        "usage": "cat <path_to_file>"
+    },
+
     {
         "name": "pwd",
         "description": "Get current directory",
