@@ -231,7 +231,7 @@ class AgentTab(ttk.Frame):
     def handle_execute_assembly(self, command: str):
         file_name = command[17:]
         self.output_text.insert(
-            tk.END, f"[*] Tasked beacon to execute .NET assembly: {file_name}\n"
+            tk.END, f"[*] Tasked beacon to run .NET program: {file_name}\n"
         )
 
         try:
