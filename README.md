@@ -45,7 +45,7 @@ Winton is an open-source cross-platform C2 framework written for the purposes of
 ### Implant
 > Written in Golang 1.21.1 (tested on Windows/AMD64) 
 - Process migration and process injection
-- In-memory .NET assembly execution
+- In-memory .NET assembly execution (creds to: [@ropnop](https://github.com/ropnop/go-clr))
 - Task queuing via named pipes
 - Built-ins via `os/exec` & `os/user`
 - There are 2 implants available:
