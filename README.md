@@ -58,6 +58,8 @@ Winton is an open-source cross-platform C2 framework written for the purposes of
 - Supports task queuing via multithreading
 - In-memory .NET assembly execution via `execute-assembly`
 ![execute-assembly](./assets/execute_assembly.png)
+  - creds: [SharpAwareness](https://github.com/CodeXTF2/SharpAwareness) by [@CodeXTF2](https://twitter.com/codex_tf2)
+  - for some reason, if you try to load .NET assemblies that are too large, the CLR will just not load lol.
 - Heavy reliance on Winton's Python API, see [Python API References](#python-api-references) for more info.
 - Updated list of supported commands available: [here](./client/Winton/globals.py#)
 ![Help](./assets/Client_help.png)
