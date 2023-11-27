@@ -1,10 +1,13 @@
-package main 
+package main
 
 import (
-	"unsafe"
 	"fmt"
+	"io"
 	"strings"
 	"syscall"
+	"unsafe"
+
+	"github.com/Microsoft/go-winio"
 )
 
 func (obj *Assembly) GetEntryPoint(pMethodInfo *uintptr) uintptr {
@@ -17,8 +20,8 @@ func (obj *Assembly) GetEntryPoint(pMethodInfo *uintptr) uintptr {
 	return ret
 }
 
-func ExecuteByteArray(targetRuntime string, rawBytes []byte, params []string) (retCode int32, err error) {
-	retCode = -1
+func ExecuteByteArray(targetRuntime string, rawBytes []byte, params []string) (result string, err error) {
+	result = ""
 	if targetRuntime == "" {
 		targetRuntime = "v4"
 	}
@@ -51,7 +54,7 @@ func ExecuteByteArray(targetRuntime string, rawBytes []byte, params []string) (r
 		return
 	}
 	if !isLoadable {
-		return -1, fmt.Errorf("%s is not loadable for some reason", latestRuntime)
+		return "", fmt.Errorf("%s is not loadable for some reason", latestRuntime)
 	}
 	runtimeHost, err := GetICORRuntimeHost(runtimeInfo)
 	if err != nil {
@@ -85,6 +88,7 @@ func ExecuteByteArray(targetRuntime string, rawBytes []byte, params []string) (r
 	if err != nil {
 		return
 	}
+
 	methodSignature := readUnicodeStr(unsafe.Pointer(methodSignaturePtr))
 
 	if expectsParams(methodSignature) {
@@ -98,17 +102,57 @@ func ExecuteByteArray(targetRuntime string, rawBytes []byte, params []string) (r
 		VT:  1,
 		Val: uintptr(0),
 	}
+
+	pipeName := `\\.\pipe\temp` // DONT DO THIS LOL
+	done := make(chan []byte)
+	errChan := make(chan error)
+	
+
+	listener, err := winio.ListenPipe(pipeName, nil)
+	if err != nil {
+		return
+	}
+	defer listener.Close()
+
+	go func() {
+		conn, err := listener.Accept()
+		if err != nil {
+			errChan <- err
+			return
+		}
+		defer conn.Close()
+
+		data, err := io.ReadAll(conn)
+		if err != nil {
+			errChan <- err
+			return
+		}
+
+		done <- data
+	}()
+
 	hr = methodInfo.Invoke_3(
 		nullVariant,
 		paramPtr,
 		&pRetCode)
+
+	select {
+	case data := <-done:
+		result = string(data)
+	case err := <-errChan:
+		fmt.Println("Error reading from pipe:", err)
+	}
+
+	fmt.Println("Named pipe res:", result)
+
 	err = checkOK(hr, "methodInfo.Invoke_3")
 	if err != nil {
 		return
 	}
+
 	appDomain.Release()
 	runtimeHost.Release()
 	runtimeInfo.Release()
 	metahost.Release()
-	return int32(pRetCode), nil
+	return result, nil
 }

@@ -118,12 +118,14 @@ class AgentTab(ttk.Frame):
         self.command_entry.bind("<Down>", self.next_command)
         self.command_history = []
         self.history_index = 0
-    
+
     def prev_command(self, event):
         if self.command_history and self.history_index > 0:
             self.history_index -= 1
             self.command_entry.delete(0, tk.END)
-            self.command_entry.insert(0, self.prompt + self.command_history[self.history_index])
+            self.command_entry.insert(
+                0, self.prompt + self.command_history[self.history_index]
+            )
             self.command_entry.icursor(tk.END)
             return "break"
 
@@ -131,16 +133,19 @@ class AgentTab(ttk.Frame):
         if self.command_history and self.history_index < len(self.command_history) - 1:
             self.history_index += 1
             self.command_entry.delete(0, tk.END)
-            self.command_entry.insert(0, self.prompt + self.command_history[self.history_index])
+            self.command_entry.insert(
+                0, self.prompt + self.command_history[self.history_index]
+            )
             self.command_entry.icursor(tk.END)
             return "break"
-        elif self.command_history and self.history_index == len(self.command_history) - 1:
+        elif (
+            self.command_history and self.history_index == len(self.command_history) - 1
+        ):
             self.history_index += 1
             self.command_entry.delete(0, tk.END)
             self.command_entry.insert(0, self.prompt)
             self.command_entry.icursor(tk.END)
             return "break"
-    
 
     def prevent_prompt_deletion(self, event):
         if event.keysym in ("BackSpace", "Delete", "Left") and self.command_entry.index(
@@ -178,12 +183,15 @@ class AgentTab(ttk.Frame):
         if command.startswith("shell"):
             self.handle_shell(command)
             return
-    
+
         if command.startswith("cat"):
             self.handle_cat(command)
             return
-            
-        
+
+        if command.startswith("execute-assembly"):
+            self.handle_execute_assembly(command)
+            return
+
         match command:
             case "clear":
                 self.handle_clear()
@@ -220,6 +228,25 @@ class AgentTab(ttk.Frame):
     def handle_pwd(self):
         self.generic_task_handler("pwd", "get current working directory")
 
+    def handle_execute_assembly(self, command: str):
+        file_name = command[17:]
+        self.output_text.insert(
+            tk.END, f"[*] Tasked beacon to execute .NET assembly: {file_name}\n"
+        )
+
+        try:
+            with open(file_name, "rb") as f:
+                assembly_bytes = f.read()
+                encoded_bytes = base64.b64encode(assembly_bytes).decode()
+        except FileNotFoundError:
+            self.output_text.insert(tk.END, f"[!] File not found: {file_name}\n")
+            return
+
+        task_response = get_task_response(
+            self.client, "execute-assembly", encoded_bytes
+        )
+        self.display_task_response(task_response)
+
     def handle_shell(self, command: str):
         self.output_text.insert(
             tk.END, f"[*] Tasked beacon to execute shell command: {command}\n"
@@ -229,7 +256,7 @@ class AgentTab(ttk.Frame):
             self.client, "shell", " ".join(command.split(" ")[1:])
         )
         self.display_task_response(task_response)
-    
+
     def handle_cat(self, command: str):
         self.output_text.insert(
             tk.END, f"[*] Tasked beacon to read contents of file: {command[4:]}\n"
@@ -265,7 +292,6 @@ class AgentTab(ttk.Frame):
         self.output_text.insert(tk.END, f"[*] Tasked beacon to {task_description}\n")
         task_response = get_task_response(self.client, command)
         self.display_task_response(task_response)
-
 
     def display_task_response(self, task_response: ResultList):
         if "results" in task_response and len(task_response["results"]) > 0:
