@@ -54,8 +54,7 @@ Winton is an open-source cross-platform C2 framework written for the purposes of
 
 ### Client
 > Dark themed UI written in Python with Tkinter
-- Supports interaction with multiple agents & asynchronous callbacks via multithreading
-- Supports task queuing via multithreading
+- Multi-player
 - In-memory .NET assembly execution via `execute-assembly`
 ![execute-assembly](./assets/execute_assembly.png)
   - creds: [SharpAwareness](https://github.com/CodeXTF2/SharpAwareness) by [@CodeXTF2](https://twitter.com/codex_tf2)
