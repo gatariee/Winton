@@ -40,7 +40,7 @@ Winton is an open-source cross-platform C2 framework written for the purposes of
 > Written in Golang 1.21.1 with Gin (tested on Windows/AMD64)
 - Support for multiple listeners (HTTP implemented)
 - Multiplayer-mode
-- Process injection 
+- Cross-platform
 
 ### Implant
 > Written in Golang 1.21.1 (tested on Windows/AMD64) 
