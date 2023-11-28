@@ -37,13 +37,13 @@ Winton is an open-source cross-platform C2 framework written for the purposes of
 
 ## Features
 ### Teamserver
-> Written in Golang 1.21.1 with Gin (tested on Windows/AMD64)
+> Written in Golang 1.21.1 with Gin (tested on Windows 11 x64/AMD64)
 - Support for multiple listeners (HTTP implemented)
 - Multiplayer-mode
-- Cross-platform
+- Cross-platform binary
 
 ### Implant
-> Written in Golang 1.21.1 (tested on Windows/AMD64) 
+> Written in Golang 1.21.1 (Windows only*)
 - Process migration and process injection
 - In-memory .NET assembly execution (creds to: [@ropnop](https://github.com/ropnop/go-clr))
 - Task queuing via named pipes
