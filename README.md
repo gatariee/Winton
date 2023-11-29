@@ -12,8 +12,6 @@ Winton is an open-source cross-platform C2 framework written for the purposes of
 
 ![Cover](./assets/Winton_Banner.png)
 
-> This project was made to learn more about C2 internals, OPSEC considerations in beacon and to learn Golang _(i still can't get function imports to work)_.
-
 ## Table of Contents
 - [Winton](#winton)
   - [Table of Contents](#table-of-contents)
