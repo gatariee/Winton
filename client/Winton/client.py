@@ -17,7 +17,7 @@ class Client:
         self.Teamserver = TEAMSERVER
 
     @classmethod
-    def get_agents(cls, URL: str):
+    def get_agents(cls, URL: str) -> list[Agent]:
         try:
             URL = URL + "/agents"
             response = requests.get(URL)
@@ -25,6 +25,7 @@ class Client:
                 return response.json()["agents"]
         except Exception as e:
             print(e)
+            return []
 
     def refresh_agents(self):
         self.Agent_List = self.get_agents(self.Teamserver)

@@ -98,6 +98,13 @@ class Winton(tk.Tk):
 
     def populate_agents(self, agents: list[Agent]):
         self.agent_listbox.delete(0, END) 
+        if agents is None:
+            self.agent_listbox.insert(END, "No agents registered")
+            return
+        
+        if len(agents) == 0:
+            self.agent_listbox.insert(END, "TS Dead?")
+            return
         for agent in agents:
             self.agent_listbox.insert(
                 END, f"{agent['Hostname']} @ {agent['IP']} | {agent['UID']}"

@@ -11,7 +11,7 @@ from Winton.globals import Teamserver
 from Winton.types import ResultList
 
 from UserInterface.globals import colors
-from Utils.print import pretty_print_ls, handle_help__str__, handle_winton
+from Utils.print import pretty_print_ls, handle_help__str__, handle_winton, handle_usage
 
 
 class AgentTab(ttk.Frame):
@@ -229,6 +229,10 @@ class AgentTab(ttk.Frame):
         self.generic_task_handler("pwd", "get current working directory")
 
     def handle_execute_assembly(self, command: str):
+        if len(command.split(" ")) < 2:
+            usage = handle_usage("execute-assembly")
+            self.output_text.insert(tk.END, usage)
+            return
         file_name = command[17:]
         self.output_text.insert(
             tk.END, f"[*] Tasked beacon to run .NET program: {file_name}\n"

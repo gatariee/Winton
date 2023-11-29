@@ -119,3 +119,20 @@ def handle_winton():
     package += "\n"
 
     return package
+
+def handle_usage(command: str, tasks=Tasks):
+    package = ""
+    package += "\n"
+    package += "Usage\n"
+    package += "=====\n"
+    package += "\n"
+
+    for task in tasks:
+        if task["name"] == command:
+            package += "[*] Usage: "
+            package += task["usage"]
+            break
+
+    package += "\n"
+
+    return package
