@@ -4,6 +4,8 @@
 3. autocomplete for python gui
 4. cat-ing an invalid file crashes implant
 5. upload/download using byte chunks
+6. split teamserver globals into config file (for easier deployment)
+7. central makefile?
 
 
 #### 26/11/2023 - Finally, a GUI client.
