@@ -1,3 +1,11 @@
+#### TODO
+1. add support for `inject` in new python gui (im lazy)
+2. add support for `shell` in new python gui (im lazy)
+3. autocomplete for python gui
+4. cat-ing an invalid file crashes implant
+5. upload/download using byte chunks
+
+
 #### 26/11/2023 - Finally, a GUI client.
 - The client is written in Python with Tkinter, and is multithreaded to support multiple agents and asynchronous callbacks.
 - Python API for Winton has been refactored to be more modular and easier to use (because I realized I had to convert the CLI client to a GUI).
