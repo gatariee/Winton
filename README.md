@@ -30,7 +30,7 @@ Winton is an open-source cross-platform C2 framework written for the purposes of
     - [Client](#client-2)
   - [Development](#development)
     - [Python API References](#python-api-references)
-  - [OPSEC Considerations](#opsec-considerations)
+  - [OPSEC Considerations / Notes](#opsec-considerations--notes)
     - [Implant](#implant-2)
     - [Client](#client-3)
     - [Teamserver](#teamserver-3)
