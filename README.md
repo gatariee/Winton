@@ -8,7 +8,7 @@
 
 Winton is an open-source cross-platform C2 framework written for the purposes of adversary emulation and red teaming, and is heavily inspired by the [Havoc](https://github.com/HavocFramework/Havoc) Framework by [@C5pider](https://twitter.com/C5pider)
 
-> 🐒 Winton was designed solely for educational purposes, and although stealth was the focus of the framework- it is still nowhere close to operationally functional for actual engagements!
+> 🐒 Winton was designed solely for educational purposes, although stealth was the focus of the framework- it is still nowhere close to being operationally functional for red team engagements!
 
 ![Cover](./assets/Winton_Banner.png)
 
