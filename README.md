@@ -42,7 +42,6 @@ Winton is an open-source cross-platform C2 framework written for the purposes of
 > Written in Golang 1.21.1 (Windows only*)
 - Process migration and process injection
 - In-memory .NET assembly execution (creds to: [@ropnop](https://github.com/ropnop/go-clr))
-- Task queuing via named pipes
 - Built-ins via `os/exec` & `os/user`
 - There are 2 implants available:
     - `Orisa` is written in C and is extremely unstable, and has limited functionality to `ls`, `pwd` and `whoami`.
@@ -55,7 +54,6 @@ Winton is an open-source cross-platform C2 framework written for the purposes of
 ![execute-assembly](./assets/execute_assembly.png)
   - creds: [SharpAwareness](https://github.com/CodeXTF2/SharpAwareness) by [@CodeXTF2](https://twitter.com/codex_tf2)
   - for some reason, if you try to load .NET assemblies that are too large, the CLR will just not load lol.
-- Heavy reliance on Winton's Python API, see [Python API References](#python-api-references) for more info.
 - Updated list of supported commands available: [here](./client/Winton/globals.py#)
 ![Help](./assets/Client_help.png)
 
