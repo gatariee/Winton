@@ -116,5 +116,4 @@ chmod +x ./winton.py
 
 ### Teamserver
 - Unencrypted communication with the implant over HTTP
-- Teamserver expects agent to be legitimate and doesn't check for authentication
-- Agents are stored in memory, and not persisted to disk
+- Teamserver expects agent to be legitimate and doesn't check for authentication (in fact, the password param used to start the teamserver is completely unused 🤡)
