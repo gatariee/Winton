@@ -43,9 +43,6 @@ Winton is an open-source cross-platform C2 framework written for the purposes of
 - Process migration and process injection
 - In-memory .NET assembly execution (creds to: [@ropnop](https://github.com/ropnop/go-clr))
 - Built-ins via `os/exec` & `os/user`
-- There are 2 implants available:
-    - `Orisa` is written in C and is extremely unstable, and has limited functionality to `ls`, `pwd` and `whoami`.
-    - `Sigma` is written in Golang and is much more stable, and has more functionality than `Orisa`.
 
 ### Client
 > Dark themed UI written in Python with Tkinter
@@ -73,7 +70,7 @@ cd ./bin && chmod +x ./teamserver-x64
 
 ### Implant
 ```bash
-cd ./implant/Sigma
+cd ./implant
 make windows
 ```
 

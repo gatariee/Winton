@@ -1,4 +1,0 @@
-C:\Users\PC\Desktop\git\WintonC2\implant\Wanton\x64\Debug\Wanton.vcxproj.CopyComplete
-C:\Users\PC\Desktop\git\WintonC2\implant\Wanton\x64\Debug\Wanton.exe
-C:\Users\PC\Desktop\git\WintonC2\implant\Wanton\x64\Debug\libcurl-d.dll
-C:\Users\PC\Desktop\git\WintonC2\implant\Wanton\x64\Debug\zlibd1.dll
