@@ -6,9 +6,9 @@
 <i>Yet another Command and Control (C2) framework written in Golang</i>
 </div>
 
-Winton is an open-source cross-platform C2 framework written for the purposes of adversary emulation and red teaming, and is heavily inspired by the [Havoc](https://github.com/HavocFramework/Havoc) Framework by [@C5pider](https://twitter.com/C5pider)
+Winton is an open-source cross-platform C2 framework written for the purposes of learning adversary emulation and C2 infrastructure.
 
-> 🐒 Winton was designed solely for educational purposes, although stealth was the focus of the framework- it is still nowhere close to being operationally functional for red team engagements!
+> 🐒 Winton was designed solely for educational purposes, it is still nowhere close to being operationally functional for red team engagements!
 
 ![Cover](./assets/Winton_Banner.png)
 
@@ -26,9 +26,7 @@ Winton is an open-source cross-platform C2 framework written for the purposes of
   - [Usage](#usage)
     - [Teamserver](#teamserver-2)
     - [Client](#client-2)
-  - [Development](#development)
-    - [Python API References](#python-api-references)
-  - [OPSEC Considerations / Notes](#opsec-considerations--notes)
+  - [OPSEC Considerations](#opsec-considerations--notes)
     - [Implant](#implant-2)
     - [Client](#client-3)
     - [Teamserver](#teamserver-3)
@@ -44,7 +42,6 @@ Winton is an open-source cross-platform C2 framework written for the purposes of
 > Written in Golang 1.21.1 (Windows only*)
 - Process migration and process injection
 - In-memory .NET assembly execution (creds to: [@ropnop](https://github.com/ropnop/go-clr))
-- Task queuing via named pipes
 - Built-ins via `os/exec` & `os/user`
 - There are 2 implants available:
     - `Orisa` is written in C and is extremely unstable, and has limited functionality to `ls`, `pwd` and `whoami`.
@@ -57,7 +54,6 @@ Winton is an open-source cross-platform C2 framework written for the purposes of
 ![execute-assembly](./assets/execute_assembly.png)
   - creds: [SharpAwareness](https://github.com/CodeXTF2/SharpAwareness) by [@CodeXTF2](https://twitter.com/codex_tf2)
   - for some reason, if you try to load .NET assemblies that are too large, the CLR will just not load lol.
-- Heavy reliance on Winton's Python API, see [Python API References](#python-api-references) for more info.
 - Updated list of supported commands available: [here](./client/Winton/globals.py#)
 ![Help](./assets/Client_help.png)
 
@@ -99,22 +95,6 @@ chmod +x ./winton.py
 ./winton.py
 ```
 
-## Development
-### Python API References
-> ⚠️ Winton's Python API is badly written and incomplete!
-- Consists of several dataclasses that represent structs returned by the teamserver: `Agent`, `File`, `CommandData`, `Command`, `Result`, `ResultList` as well as a `Client` class which handles interaction with the teamserver.
-- The `Agent` class represents an agent connected to the teamserver, and contains the following attributes:
-    - `IP` - IP address of the agent
-    - `Hostname` - Hostname of the agent
-    - `Sleep` - Current beacon sleep time
-    - `UID` - Unique ID of the agent
-
-- The `Client` class is the main class that handles interaction with the teamserver, and is the only class that should be used by the client.
-    - Important `Client` methods include:
-        - `get_agents()` - returns a list of `Agent` objects representing the agents connected to the teamserver.
-        - `send_task(agent, task)` - sends a task to the specified agent, returns a `Command` object representing the task.
-        - `get_results(agent, command)` - returns a `ResultList` object representing the results of the specified command.
-
 ## OPSEC Considerations / Notes
 ### Implant
 - The stable implant is written in Go and produces a binary of ~7,747,072 bytes, or ~7.38MB.
@@ -134,5 +114,4 @@ chmod +x ./winton.py
 
 ### Teamserver
 - Unencrypted communication with the implant over HTTP
-- Teamserver expects agent to be legitimate and doesn't check for authentication
-- Agents are stored in memory, and not persisted to disk
+- Teamserver expects agent to be legitimate and doesn't check for authentication (in fact, the password param used to start the teamserver is completely unused 🤡)
