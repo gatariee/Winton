@@ -1,4 +1,4 @@
-package main
+package commands
 
 import (
 	"fmt"
@@ -20,7 +20,7 @@ type File struct {
 	ModTime  time.Time
 }
 
-func getFolderSize(path string) (int64, error) {
+func GetFolderSize(path string) (int64, error) {
     var size int64
     err := filepath.Walk(path, func(filePath string, info os.FileInfo, err error) error {
         if err != nil {
@@ -34,7 +34,7 @@ func getFolderSize(path string) (int64, error) {
     return size, err
 }
 
-func pwd() string {
+func Pwd() string {
 	dir, err := os.Getwd()
 	if err != nil {
 		return err.Error()
@@ -43,7 +43,7 @@ func pwd() string {
 	return dir
 }
 
-func ls(path string) ([]File, error) {
+func Ls(path string) ([]File, error) {
     dir, err := os.Open(path)
     if err != nil {
         return nil, err
@@ -59,7 +59,7 @@ func ls(path string) ([]File, error) {
     for i, fileInfo := range fileInfos {
         size := fileInfo.Size()
         if fileInfo.IsDir() {
-            size, err = getFolderSize(filepath.Join(path, fileInfo.Name()))
+            size, err = GetFolderSize(filepath.Join(path, fileInfo.Name()))
             if err != nil {
                 return nil, err
             }
@@ -74,7 +74,7 @@ func ls(path string) ([]File, error) {
     return files, nil
 }
 
-func whoami() string {
+func Whoami() string {
 	user, err := user.Current()
 	if err != nil {
 		return err.Error()
@@ -83,13 +83,13 @@ func whoami() string {
 	return user.Username
 }
 
-func shell(command string) (string, error) {
+func Shell(command string) (string, error) {
     cmd := exec.Command("cmd.exe", "/c", command)
     output, err := cmd.CombinedOutput()
     return string(output), err
 }
 
-func cat(filename string) (string, error) {
+func Cat(filename string) (string, error) {
 	// read file without using cmd
 
 	file, err := os.Open(filename)
@@ -159,7 +159,7 @@ func getProcessOwner(processHandle windows.Handle) (string, error) {
 	return fmt.Sprintf("%s\\%s", domainName, userName), nil
 }	
 
-func ps() (string, error) {
+func Ps() (string, error) {
 	snapshot, err := windows.CreateToolhelp32Snapshot(windows.TH32CS_SNAPPROCESS, 0)
 	if err != nil {
 		return "", err
@@ -211,6 +211,6 @@ func ps() (string, error) {
 	return output, nil
 }
 
-func get_pid() string {
+func Get_pid() string {
 	return fmt.Sprintf("%d", os.Getpid())
 }

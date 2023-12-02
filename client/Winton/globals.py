@@ -26,5 +26,3 @@ Tasks: list[Command] = [
         "usage": "execute-assembly <path_to_assembly>",
     }
 ]
-
-Teamserver = "http://127.0.0.1:80"

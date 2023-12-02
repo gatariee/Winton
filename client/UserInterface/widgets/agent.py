@@ -3,16 +3,19 @@ import json
 import sys
 import threading
 import tkinter as tk
+
 from tkinter import ttk, scrolledtext, END, font
 
 from Winton.client import Client
 from Winton.standalone import get_task_response
-from Winton.globals import Teamserver
 from Winton.types import ResultList
 
 from UserInterface.globals import colors
 from Utils.print import pretty_print_ls, handle_help__str__, handle_winton, handle_usage
+from Utils.config import load
 
+config = load()
+Teamserver = config["teamserver"]
 
 class AgentTab(ttk.Frame):
     def __init__(self, container: ttk.Notebook, agent_name: str, **kwargs):

@@ -1,4 +1,4 @@
-package main
+package winapi
 
 type ICLRRuntimeInfoVtbl struct {
 	QueryInterface         uintptr
