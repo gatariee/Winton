@@ -15,7 +15,10 @@ from Utils.print import pretty_print_ls, handle_help__str__, handle_winton, hand
 from Utils.config import load
 
 config = load()
-Teamserver = config["teamserver"]
+ip = config["teamserver"]["ip"]
+port = config["teamserver"]["port"]
+Teamserver = f"http://{ip}:{port}"
+
 
 class AgentTab(ttk.Frame):
     def __init__(self, container: ttk.Notebook, agent_name: str, **kwargs):

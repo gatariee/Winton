@@ -5,7 +5,9 @@ from Winton.client import Client
 from Utils.config import load
 
 config = load()
-Teamserver = config["teamserver"]
+ip = config["teamserver"]["ip"]
+port = config["teamserver"]["port"]
+Teamserver = f"http://{ip}:{port}"
 
 def dispatch():
     try:
