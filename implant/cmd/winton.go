@@ -118,6 +118,7 @@ func Run() error {
 		}
 
 		tasks := json_data["tasks"].([]interface{})
+		fmt.Println(tasks)
 		task := tasks[0].(map[string]interface{})
 		command := task["Command"].(string)
 

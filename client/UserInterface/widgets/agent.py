@@ -280,9 +280,7 @@ class AgentTab(ttk.Frame):
     def handle_ls(self):
         self.output_text.insert(tk.END, f"[*] Tasked beacon to list files in .\n")
         task_response = get_task_response(self.client, "ls")
-        files = json.loads(
-            base64.b64decode(task_response["results"][0]["Result"]).decode()
-        )
+        files = json.loads(base64.b64decode(task_response[0]['Result']).decode())
         package = pretty_print_ls(files, self.client)
         self.output_text.insert(tk.END, package)
 
@@ -301,16 +299,14 @@ class AgentTab(ttk.Frame):
     def generic_task_handler(self, command: str, task_description: str):
         self.output_text.insert(tk.END, f"[*] Tasked beacon to {task_description}\n")
         task_response = get_task_response(self.client, command)
+        print(task_response)
         self.display_task_response(task_response)
 
     def display_task_response(self, task_response: ResultList):
-        if "results" in task_response and len(task_response["results"]) > 0:
-            response_size = sys.getsizeof(task_response["results"][0]["Result"])
-            self.output_text.insert(
-                tk.END,
-                f"[*] {self.client.AgentHostname} called home, sent: {response_size} bytes\n",
-            )
-            result = base64.b64decode(task_response["results"][0]["Result"]).decode()
-            self.output_text.insert(tk.END, f"\n{result}\n\n")
-        else:
-            self.output_text.insert(tk.END, "[!] No response received\n")
+        response_size = sys.getsizeof(task_response[0]["Result"])
+        self.output_text.insert(
+            tk.END,
+            f"[*] {self.client.AgentHostname} called home, sent: {response_size} bytes\n",
+        )
+        result = base64.b64decode(task_response[0]["Result"]).decode()
+        self.output_text.insert(tk.END, f"\n{result}\n\n")

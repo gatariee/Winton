@@ -5,16 +5,17 @@ from Winton.types import Agent, CommandData
 @dataclass
 class Client:
     Agent_List: list[Agent]
+    Tasks: list[str]
     AgentID: str = ""
     AgentHostname: str = ""
     AgentIP: str = ""
-    Tasks: list[str] = None
     Beacon_Sleep: str = ""
     Teamserver: str = ""
 
     def __init__(self, TEAMSERVER: str):
         self.Agent_List = self.get_agents(TEAMSERVER)
         self.Teamserver = TEAMSERVER
+        self.Tasks = []
 
     @classmethod
     def get_agents(cls, URL: str) -> list[Agent]:
@@ -41,14 +42,19 @@ class Client:
         except Exception as e:
             print(e)
 
-    def get_results(self):
+    def get_results(self, task) -> (bool, list[dict]):
+        URL = self.Teamserver + "/results/" + task
         try:
-            URL = self.Teamserver + "/results/" + self.Tasks
-            response = requests.get(URL)
+            response = requests.get(URL) # this can error
             if response.status_code == 200:
-                return response.json()
+                return True, response.json()["results"]
+            
+            if response.json()["message"] == "No results found":
+                return False, response.json()["message"]
+        
         except Exception as e:
-            print(e)
+            # if an error is thrown, let the caller handle it
+            return False, e
 
     def display_agents(self):
         if len(self.Agent_List) == 0:

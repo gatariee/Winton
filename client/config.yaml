@@ -1,3 +1,9 @@
 teamserver:
-  ip: "127.0.0.1"
-  port: "80"
+  ip: "127.0.0.1" # listener IP (usually the teamserver)
+  port: "80" # HTTP listener by default, TODO: make it easier to add multiple listeners
+
+beacon:
+  kill_time: "3600" # stop waiting for result after 1 hour, clear queue and await next task
+  jitter: "2" # set to "2" by default
+  # sleep: "" # not implemented, set to 5 by default
+
