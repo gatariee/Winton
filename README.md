@@ -101,7 +101,6 @@ chmod +x ./winton.py
 ![Client](./assets/Client_ps.png)
     - `VirtualAllocEx` is called with PAGE_EXECUTE_READWRITE & unbacked memory allocation
     - Thread start address is `0x0`
-> ⚠️ Beacon instability mainly caused by the implementation of task queuing and tagging in the teamserver, there is a permanent race condition between the teamserver and the implant that causes the implant to crash if the teamserver sends a task to the implant while the implant is still processing a task.
 
 ### Client
 - Unencrypted communication with the teamserver over HTTP
