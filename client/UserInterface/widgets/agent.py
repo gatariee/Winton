@@ -3,12 +3,14 @@ import json
 import sys
 import threading
 import tkinter as tk
+import glob
 
 from tkinter import ttk, scrolledtext, END, font
 
 from Winton.client import Client
 from Winton.standalone import get_task_response
 from Winton.types import ResultList
+from Winton.globals import Tasks
 
 from UserInterface.globals import colors
 from Utils.print import pretty_print_ls, handle_help__str__, handle_winton, handle_usage
@@ -23,8 +25,7 @@ Teamserver = f"http://{ip}:{port}"
 class AgentTab(ttk.Frame):
     def __init__(self, container: ttk.Notebook, agent_name: str, **kwargs):
         super().__init__(container, **kwargs)
-        self.agent_name = agent_name
-        self.uid = agent_name.split(" | ")[-1]
+        self.uid = agent_name.split("[")[1].split("]")[0]  # lol this is so bad
         self.prompt = f"winton>> "
         self.setup_style()
         self.initialize_client()
@@ -124,6 +125,52 @@ class AgentTab(ttk.Frame):
         self.command_entry.bind("<Down>", self.next_command)
         self.command_history = []
         self.history_index = 0
+
+        self.tasks = [task["name"] for task in Tasks]
+        self.command_entry.bind("<Tab>", self.tab_complete)
+
+    def tab_complete(self, event):
+        current_text = self.command_entry.get()
+
+        if "cat" in current_text or "execute-assembly" in current_text:
+            parts = current_text.split(" ")
+            if len(parts) > 1:
+                file_path_fragment = parts[-1]
+                matches = glob.glob(file_path_fragment + "*")
+                if len(matches) == 1:
+                    self.command_entry.delete(0, tk.END)
+                    self.command_entry.insert(0, " ".join(parts[:-1] + [matches[0]]))
+                    self.command_entry.icursor(tk.END)
+                    return "break"
+                elif len(matches) > 1:
+                    self.output_text.insert(tk.END, "\n")
+                    for match in matches:
+                        self.output_text.insert(tk.END, f"{match}\n")
+                    self.output_text.insert(tk.END, "\n")
+                    self.scroll_to_end()
+                    return "break"
+
+        if current_text.startswith(self.prompt):
+            current_text = current_text[len(self.prompt) :]
+        if current_text == "":
+            return "break"
+        
+        matching_tasks = [task for task in self.tasks if task.startswith(current_text)]
+        if len(matching_tasks) == 1:
+            self.command_entry.delete(len(self.prompt), tk.END)
+            self.command_entry.insert(len(self.prompt), matching_tasks[0])
+            self.command_entry.icursor(tk.END)
+            return "break"
+        elif len(matching_tasks) > 1:
+            self.output_text.insert(tk.END, "\n")
+            for task in matching_tasks:
+                self.output_text.insert(tk.END, f"{task}\n")
+            self.output_text.insert(tk.END, "\n")
+            self.scroll_to_end()
+            return "break"
+        else:
+            return "break"
+        
 
     def prev_command(self, event):
         if self.command_history and self.history_index > 0:
@@ -280,7 +327,7 @@ class AgentTab(ttk.Frame):
     def handle_ls(self):
         self.output_text.insert(tk.END, f"[*] Tasked beacon to list files in .\n")
         task_response = get_task_response(self.client, "ls")
-        files = json.loads(base64.b64decode(task_response[0]['Result']).decode())
+        files = json.loads(base64.b64decode(task_response[0]["Result"]).decode())
         package = pretty_print_ls(files, self.client)
         self.output_text.insert(tk.END, package)
 

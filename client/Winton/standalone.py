@@ -19,7 +19,6 @@ def get_task_response(client: Client, task: str, args: str = ""):
 
     time.sleep(int(client.Beacon_Sleep) + 2)
 
-    
     while True:
         if time.time() - PACKAGE_START > int(KILL_TIME):
             print("[!] Beacon died, clearing queue and awaiting next task")

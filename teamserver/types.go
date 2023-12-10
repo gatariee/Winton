@@ -1,4 +1,4 @@
-package handler
+package main
 
 type Agent struct {
 	IP       string
@@ -9,11 +9,6 @@ type Agent struct {
 	OS       string
 	UID      string
 	PID      string
-}
-
-type TaskResult struct {
-	CommandID string `json:"CommandID"`
-	Result    string `json:"Result"`
 }
 
 type Task struct {
