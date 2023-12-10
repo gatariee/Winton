@@ -10,44 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Agent struct {
-	IP       string
-	Hostname string
-	Sleep    string
-	UID      string
-}
-
-type Task struct {
-	UID       string
-	CommandID string
-	Command   string
-}
-
-type CommandData struct {
-	CommandID string
-	Command   string
-}
-
-type Result struct {
-	CommandID string
-	Result    string
-}
-
-type Callback struct {
-	AgentUID     string
-	LastCallback int
-}
-
-type TeamServer struct {
-	IP             string
-	Port           string
-	Password       string
-	AgentList      []Agent
-	AgentTasks     []Task
-	AgentResults   []Result
-	AgentCallbacks []Callback
-}
-
 func NewTeamServer(ip, port, password string) *TeamServer {
 	return &TeamServer{
 		IP:       ip,
@@ -77,8 +39,7 @@ func (ts *TeamServer) checkBeacons() {
 			agentSleep, _ := strconv.Atoi(agent.Sleep)
 			if ts.AgentCallbacks[i].LastCallback > agentSleep+5 {
 				fmt.Printf("[!] Agent [%s] has gone offline.\n", agent.UID)
-				//ts.removeAgent(agent.UID)
-				ts.AgentList[i].Hostname = ts.AgentList[i].Hostname + " (DEAD?)"
+				ts.removeAgent(agent.UID)
 				return
 			}
 		}

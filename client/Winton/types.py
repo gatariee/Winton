@@ -1,14 +1,33 @@
 from dataclasses import dataclass
 
+"""
+type Agent struct {
+	IP       string
+	ExtIP    string
+	Hostname string
+	Sleep    string
+	Jitter   string
+	OS       string
+	UID      string
+	PID      string
+}
+"""
+
+
 @dataclass
 class Agent:
     IP: str
+    ExtIP: str
     Hostname: str
     Sleep: str
+    Jitter: str
+    OS: str
     UID: str
+    PID: str
 
     def winton(self) -> dict:
         return self.__dict__
+
 
 @dataclass
 class File:
@@ -29,6 +48,7 @@ class CommandData:
     def winton(self) -> dict:
         return self.__dict__
 
+
 @dataclass
 class Command:
     name: str
@@ -38,6 +58,7 @@ class Command:
     def __str__(self):
         return f"{self.name}\t\t{self.description}\nUsage: {self.usage}"
 
+
 @dataclass
 class Result:
     CommandID: str
@@ -45,6 +66,7 @@ class Result:
 
     def winton(self) -> dict:
         return self.__dict__
+
 
 @dataclass
 class ResultList:

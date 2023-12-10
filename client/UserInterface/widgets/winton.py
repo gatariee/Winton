@@ -98,16 +98,14 @@ class Winton(tk.Tk):
 
     def populate_agents(self, agents: list[Agent]):
         self.agent_listbox.delete(0, END) 
-        if agents is None:
-            self.agent_listbox.insert(END, "No agents registered")
+
+        if agents is None or len(agents) == 0:
+            self.agent_listbox.insert(END, "Error fetching agents")
             return
-        
-        if len(agents) == 0:
-            self.agent_listbox.insert(END, "TS Dead?")
-            return
+    
         for agent in agents:
             self.agent_listbox.insert(
-                END, f"{agent['Hostname']} @ {agent['IP']} | {agent['UID']}"
+                END, f"[{agent['UID']}] {agent['Hostname']} @ {agent['IP']} | {agent['OS']} | Sleep: {agent['Sleep']} | PID: {agent['PID']}"
             )
         
     def schedule_agent_update(self):
@@ -126,5 +124,6 @@ class Winton(tk.Tk):
         tab_names = [self.notebook.tab(tab, "text") for tab in self.notebook.tabs()]
         if agent_name not in tab_names:
             agent_tab = AgentTab(self.notebook, agent_name)
-            self.notebook.add(agent_tab, text=agent_name)
+            agent_text = agent_name[:agent_name.find("@")]
+            self.notebook.add(agent_tab, text=agent_text)
             self.notebook.select(agent_tab)
