@@ -53,6 +53,7 @@ Winton is an open-source cross-platform C2 framework written for the purposes of
   - for some reason, if you try to load .NET assemblies that are too large, the CLR will just not load lol.
 - Updated list of supported commands available: [here](./client/Winton/globals.py#)
 ![Help](./assets/Client_help.png)
+- [Athena](https://github.com/gatariee/Athena) - A bot integrated with Winton for collaborative red team operations over Discord 
 
 ## Installation
 ### Winton
