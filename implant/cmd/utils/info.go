@@ -74,14 +74,3 @@ func GetSystemInfo() string {
 
     return fmt.Sprintf("%s (%s)", os, arch)
 }
-
-func main() {
-    ip, err := GetInternalIP()
-    if err != nil {
-        fmt.Println(err)
-    }
-    fmt.Println(ip)
-
-    OS := GetSystemInfo()
-    fmt.Println(OS)
-}
