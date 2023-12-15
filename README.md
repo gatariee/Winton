@@ -45,9 +45,9 @@ Winton is an open-source cross-platform C2 framework written for the purposes of
 - Built-ins via `os/exec` & `os/user`
 
 ### Client
-> Dark themed UI written in Python with Tkinter
+> GUI written in Python with Tkinter
 - Multi-player
-- In-memory .NET assembly execution via `execute-assembly`
+- In-memory .NET assembly execution via `execute-assembly` (*and tab auto-complete!)
 ![execute-assembly](./assets/execute_assembly.png)
   - creds: [SharpAwareness](https://github.com/CodeXTF2/SharpAwareness) by [@CodeXTF2](https://twitter.com/codex_tf2)
   - for some reason, if you try to load .NET assemblies that are too large, the CLR will just not load lol.
