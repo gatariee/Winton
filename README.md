@@ -8,7 +8,7 @@
 
 Winton is an open-source cross-platform C2 framework written for the purposes of learning adversary emulation and C2 infrastructure.
 
-> 🐒 Winton was designed solely for educational purposes, it is still nowhere close to being operationally functional for red team engagements!
+> 🐒 Winton was designed solely for educational purposes, it is still nowhere close to being operationally functional for red team engagements! (also not maintained anymore)
 
 ![Cover](./assets/Winton_Banner.png)
 
