@@ -19,6 +19,7 @@ Winton is an open-source cross-platform C2 framework written for the purposes of
     - [Teamserver](#teamserver)
     - [Implant](#implant)
     - [Client](#client)
+    - [Golang-Client](#golang-client)
   - [Installation](#installation)
     - [Teamserver](#teamserver-1)
     - [Implant](#implant-1)
@@ -54,6 +55,13 @@ Winton is an open-source cross-platform C2 framework written for the purposes of
 - Updated list of supported commands available: [here](./client/Winton/globals.py#)
 ![Help](./assets/Client_help.png)
 - [Athena](https://github.com/gatariee/Athena) - A bot integrated with Winton for collaborative red team operations over Discord 
+
+### Golang-Client
+> Very WIP CLI written with Cobra
+- Very unstable, but should be multi-player compatible
+- Hope to make this stable and useful in the future!
+
+![golang](./assets/golang1.png)
 
 ## Installation
 ### Winton
