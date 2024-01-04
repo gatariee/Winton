@@ -120,7 +120,6 @@ func (p *Print) TasksTable(tasks []winton.Task) {
 			task.Result,
 		}
 
-		// Set text color based on the task's status
 		switch task.Status {
 		case "complete":
 			row[3] = color.New(color.FgHiGreen).Sprint(task.Status)
@@ -141,8 +140,9 @@ func (p *Print) TasksTable(tasks []winton.Task) {
 		tablewriter.Colors{tablewriter.FgWhiteColor},
 	)
 
-	table.SetBorders(tablewriter.Border{Left: true, Top: true, Right: true, Bottom: true})
-
+    table.SetRowSeparator(" ")
+    table.SetCenterSeparator(" ")
+    table.SetColumnSeparator(" ")
 	table.Render()
 }
 
