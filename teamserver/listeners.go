@@ -40,7 +40,6 @@ func (ts *TeamServer) checkBeacons() {
 			if ts.AgentCallbacks[i].LastCallback > agentSleep+5 {
 				fmt.Printf("[!] Agent [%s] has gone offline.\n", agent.UID)
 				ts.removeAgent(agent.UID)
-				return
 			}
 		}
 	}

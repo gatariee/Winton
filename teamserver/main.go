@@ -23,5 +23,6 @@ func main() {
 	_winton_print("Default: HTTP Listener started on [" + ts.IP + ":" + HTTP_PORT + "]")
 
 	go ts.checkBeacons()
+
 	select {}
 }

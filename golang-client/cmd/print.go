@@ -7,9 +7,9 @@ import (
 	"runtime"
 	"time"
 
+	winton "cli/cmd/winton"
 	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
-
 )
 
 type Print struct {
@@ -41,27 +41,58 @@ func (p *Print) Linebreak() {
 	fmt.Println()
 }
 
+func (p *Print) AgentsTable(agents []winton.Agent) {
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Hostname", "IP Address", "Operating System", "Sleep Time", "Jitter", "Process ID", "UID"})
+
+	for _, agent := range agents {
+		row := []string{
+			agent.Hostname,
+			agent.IP,
+			agent.OS,
+			agent.Sleep,
+			agent.Jitter,
+			agent.PID,
+			agent.UID,
+		}
+		table.Append(row)
+	}
+
+	table.SetColumnColor(
+		tablewriter.Colors{tablewriter.Bold, tablewriter.FgWhiteColor},
+		tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiWhiteColor},
+		tablewriter.Colors{tablewriter.Bold, tablewriter.FgWhiteColor},
+		tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiWhiteColor},
+		tablewriter.Colors{tablewriter.Bold, tablewriter.FgWhiteColor},
+		tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiWhiteColor},
+		tablewriter.Colors{tablewriter.Bold, tablewriter.FgWhiteColor},
+	)
+
+	table.SetBorders(tablewriter.Border{Left: true, Top: true, Right: true, Bottom: true})
+
+	table.Render()
+}
+
 func (p *Print) ConfigTable(config map[string]string) {
-    table := tablewriter.NewWriter(os.Stdout)
-    table.SetHeader([]string{"Setting", "Value"})
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Setting", "Value"})
 
-    for key, value := range config {
-        table.Append([]string{key, value})
-    }
+	for key, value := range config {
+		table.Append([]string{key, value})
+	}
 
-    table.SetHeaderColor(
-        tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiWhiteColor},
-        tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiWhiteColor},
-    )
-    table.SetColumnColor(
-        tablewriter.Colors{tablewriter.Bold, tablewriter.FgWhiteColor},
-        tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiGreenColor},
-    )
-    table.SetRowSeparator("-")
-    table.SetCenterSeparator("+")
-    table.SetColumnSeparator("|")
+	table.SetHeaderColor(
+		tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiWhiteColor},
+		tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiWhiteColor},
+	)
+	table.SetColumnColor(
+		tablewriter.Colors{tablewriter.Bold, tablewriter.FgWhiteColor},
+		tablewriter.Colors{tablewriter.FgHiWhiteColor},
+	)
 
-    table.Render()
+	table.SetBorders(tablewriter.Border{Left: true, Top: true, Right: true, Bottom: true})
+
+	table.Render()
 }
 
 func (p *Print) ClearScreen() {
@@ -74,6 +105,45 @@ func (p *Print) ClearScreen() {
 
 	cmd.Stdout = os.Stdout
 	cmd.Run()
+}
+
+func (p *Print) TasksTable(tasks []winton.Task) {
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Task UID", "Beacon UID", "Command", "Status", "Result (Base64-encoded)"})
+
+	for _, task := range tasks {
+		row := []string{
+			task.Task_UID,
+			task.Beacon_UID,
+			task.Cmd,
+			task.Status,
+			task.Result,
+		}
+
+		// Set text color based on the task's status
+		switch task.Status {
+		case "complete":
+			row[3] = color.New(color.FgHiGreen).Sprint(task.Status)
+		case "failed":
+			row[3] = color.New(color.FgHiRed).Sprint(task.Status)
+		default:
+			row[3] = color.New(color.FgHiYellow).Sprint(task.Status)
+		}
+
+		table.Append(row)
+	}
+
+	table.SetColumnColor(
+		tablewriter.Colors{tablewriter.Bold, tablewriter.FgWhiteColor},
+		tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiWhiteColor},
+		tablewriter.Colors{tablewriter.Bold, tablewriter.FgWhiteColor},
+		tablewriter.Colors{tablewriter.Bold, tablewriter.FgHiWhiteColor},
+		tablewriter.Colors{tablewriter.FgWhiteColor},
+	)
+
+	table.SetBorders(tablewriter.Border{Left: true, Top: true, Right: true, Bottom: true})
+
+	table.Render()
 }
 
 func (p *Print) Errorf(format string, a ...interface{}) {
@@ -95,6 +165,10 @@ func (p *Print) BeaconRecv(x int) {
 	p.Infof("Beacon called home, received %d bytes.", x)
 }
 
-func (p *Print) BeaconSent(x int) {
-	p.Infof("Tasked beacon, sent %d bytes.", x)
+func (p *Print) BeaconSent(x int, uid string, action string) {
+	uidColor := color.New(color.FgHiBlue)
+	actionColor := color.New(color.FgHiGreen)
+
+	message := fmt.Sprintf("Tasked beacon [%s] to %s, sent %d bytes.", uidColor.Sprint(uid), actionColor.Sprint(action), x)
+	p.Infof(message)
 }
