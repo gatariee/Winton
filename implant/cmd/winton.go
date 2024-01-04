@@ -9,8 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"gopkg.in/yaml.v2"
-
 	"Winton/cmd/commands"
 	"Winton/cmd/handler"
 	"Winton/cmd/utils"
@@ -33,21 +31,8 @@ var (
 )
 
 func init() {
-	data, err := os.ReadFile("config.yaml")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	var config Config
-	err = yaml.Unmarshal(data, &config)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	Listener = config.HttpListener.IP
-	Port = config.HttpListener.Port
+	Listener = "http://127.0.0.1"
+	Port = "80"
 
 	URL = Listener + ":" + Port
 	RegisterAgent = URL + "/register"
