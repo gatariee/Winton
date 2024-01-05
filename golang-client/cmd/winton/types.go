@@ -10,14 +10,6 @@ type Client struct {
 	Teamserver    string
 }
 
-type Task struct {
-	Task_UID   string
-	Beacon_UID string
-	Cmd        string
-	Status     string
-	Result     string
-}
-
 type Agent struct {
 	IP       string `json:"IP"`
 	ExtIP    string `json:"ExtIP"`

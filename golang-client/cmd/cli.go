@@ -151,20 +151,33 @@ func (s *Session) Start() {
 }
 
 func (s *Session) processArgsCommand(command string) (bool, error) {
+
 	cmd := strings.Split(command, " ")[0]
 	args := strings.Split(command, " ")[1:]
 
 	if cmd == "async" {
 		command = strings.Replace(command, "async", "", 1)
-		command = strings.TrimSpace(command)
-		_, err := s.handleAsync(command)
+		command = strings.TrimLeft(command, " ")
+		ok, err := s.handleAsync(command)
 		if err != nil {
 			fmt.Println(err)
 		}
-		s.print.Infof("Sending task asynchronously, check for results with `tasks`")
+		if ok {
+			s.print.Infof("Sending task asynchronously, check for results with `tasks`")
+		} else {
+			s.print.Errorf("task was not sent, check your command.")
+		}
 	}
 
 	switch cmd {
+
+	case "show":
+		if len(args) != 1 {
+			s.print.Errorf("Usage: show <Task UID>")
+		}
+
+		uid := args[0]
+		s.print.PrintResult(uid, s.client, 0)
 
 	case "shell":
 		if !s.beaconAttached() {
@@ -178,52 +191,33 @@ func (s *Session) processArgsCommand(command string) (bool, error) {
 			fmt.Println(err)
 		}
 
-		uid := data.Task_ID
-
-		var task winton.Task
-		task.Task_UID = uid
-		task.Beacon_UID = s.beacon.Beacon_UID
-		task.Cmd = command
-		task.Status = "pending"
-		task.Result = ""
-
-		s.client.Tasks = append(s.client.Tasks, task)
-
-		var (
-			b64_result string
-			size       int
-		)
+		task := winton.NewTask(data.Task_ID, s.beacon.Beacon_UID, command)
+		s.client.Tasks = append(s.client.Tasks, *task)
 
 		for {
 
 			time.Sleep(time.Duration(s.beacon.Beacon_Sleep)*time.Second + time.Duration(s.beacon.Beacon_Jitter)*time.Second)
+			time.Sleep(1 * time.Second)
 
-			time.Sleep(1 * time.Second) // slight buffer
-
-			b64_results, _ := s.client.Get_Response(uid)
-			if len(b64_results.Results) > 0 {
-				for _, result := range b64_results.Results {
-					b64_result = result.Result
-					size = len([]byte(b64_result))
-				}
+			res_raw, size, err := task.GetResult(s.client)
+			if err != nil {
+				fmt.Println(err)
 				break
 			}
-		}
+			if len(res_raw) > 0 {
+				for i, task := range s.client.Tasks {
+					if task.Task_UID == data.Task_ID {
+						s.client.Tasks[i].Status = "complete"
+						s.client.Tasks[i].Result = res_raw
+						s.print.PrintResult(task.Task_UID, s.client, size)
+					}
+				}
+				break
 
-		res, err := winton.DecodeResult(b64_result)
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		for i, task := range s.client.Tasks {
-			if task.Task_UID == uid {
-				s.client.Tasks[i].Status = "complete"
-				s.client.Tasks[i].Result = b64_result
 			}
 		}
 
-		s.print.BeaconRecv(size)
-		fmt.Println(res)
+		return true, nil
 
 	case "b64decode":
 		if len(args) != 1 {
@@ -267,6 +261,7 @@ func (s *Session) processArgsCommand(command string) (bool, error) {
 			Beacon_Sleep:  sleep,
 			Beacon_Jitter: jitter,
 		}
+
 		return true, nil
 	}
 
@@ -284,13 +279,65 @@ func (s *Session) beaconAttached() bool {
 func (s *Session) handleAsync(command string) (bool, error) {
 	// TODO: deprecate this and combine with processSingleCommand but with background flag
 
-	switch command {
+	fmt.Println(command)
+	cmd := strings.Split(command, " ")[0]
+
+	if !s.beaconAttached() {
+		return false, nil
+	}
+
+	switch cmd {
 	case "whoami":
 		if !s.beaconAttached() {
 			return true, nil
 		}
 
-		s.print.BeaconSent(len([]byte(command)), s.beacon.Beacon_UID, "print current user")
+		s.print.BeaconSent(len([]byte(cmd)), s.beacon.Beacon_UID, "print current user")
+
+		data, err := s.client.Send_Task(cmd, s.beacon.Beacon_UID)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		uid := data.Task_ID
+
+		var task winton.Task
+		task.Task_UID = uid
+		task.Beacon_UID = s.beacon.Beacon_UID
+		task.Cmd = command
+		task.Status = "pending"
+		task.Result = ""
+
+		s.client.Tasks = append(s.client.Tasks, task)
+
+		go func() {
+			var b64_result string
+
+			for {
+				time.Sleep(time.Duration(s.beacon.Beacon_Sleep)*time.Second + time.Duration(s.beacon.Beacon_Jitter)*time.Second)
+				res, _ := s.client.Get_Response(uid)
+				if len(res.Results) > 0 {
+					for _, result := range res.Results {
+						b64_result = result.Result
+					}
+					break
+				}
+			}
+			for i, task := range s.client.Tasks {
+				if task.Task_UID == uid {
+					s.client.Tasks[i].Status = "complete"
+					s.client.Tasks[i].Result = b64_result
+				}
+			}
+		}()
+		return true, nil
+
+	case "shell":
+		if !s.beaconAttached() {
+			return true, nil
+		}
+
+		s.print.BeaconSent(len([]byte(command)), s.beacon.Beacon_UID, "execute shell command")
 
 		data, err := s.client.Send_Task(command, s.beacon.Beacon_UID)
 		if err != nil {
@@ -312,7 +359,6 @@ func (s *Session) handleAsync(command string) (bool, error) {
 			var b64_result string
 
 			for {
-				// check-in every 5 seconds
 				time.Sleep(time.Duration(s.beacon.Beacon_Sleep)*time.Second + time.Duration(s.beacon.Beacon_Jitter)*time.Second)
 				res, _ := s.client.Get_Response(uid)
 				if len(res.Results) > 0 {
@@ -329,11 +375,11 @@ func (s *Session) handleAsync(command string) (bool, error) {
 				}
 			}
 		}()
-
 		return true, nil
 	}
 
-	return true, nil
+	/* cmd wasn't handled */
+	return false, nil
 }
 
 func (s *Session) processSingleCommand(command string) (bool, error) {
@@ -396,11 +442,6 @@ func (s *Session) processSingleCommand(command string) (bool, error) {
 			// TODO: make this return asychronously, so we can print the output as it comes in
 		}
 
-		res, err := winton.DecodeResult(b64_result)
-		if err != nil {
-			fmt.Println(err)
-		}
-
 		// TODO: make this a function
 		for i, task := range s.client.Tasks {
 			if task.Task_UID == uid {
@@ -409,8 +450,7 @@ func (s *Session) processSingleCommand(command string) (bool, error) {
 			}
 		}
 
-		s.print.BeaconRecv(size)
-		fmt.Println(res)
+		s.print.PrintResult(task.Task_UID, s.client, size)
 
 		return true, nil
 

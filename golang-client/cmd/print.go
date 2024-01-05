@@ -8,6 +8,7 @@ import (
 	"time"
 
 	winton "cli/cmd/winton"
+
 	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
 )
@@ -140,9 +141,9 @@ func (p *Print) TasksTable(tasks []winton.Task) {
 		tablewriter.Colors{tablewriter.FgWhiteColor},
 	)
 
-    table.SetRowSeparator(" ")
-    table.SetCenterSeparator(" ")
-    table.SetColumnSeparator(" ")
+	table.SetRowSeparator(" ")
+	table.SetCenterSeparator(" ")
+	table.SetColumnSeparator(" ")
 	table.Render()
 }
 
@@ -171,4 +172,26 @@ func (p *Print) BeaconSent(x int, uid string, action string) {
 
 	message := fmt.Sprintf("Tasked beacon [%s] to %s, sent %d bytes.", uidColor.Sprint(uid), actionColor.Sprint(action), x)
 	p.Infof(message)
+}
+
+func (p *Print) Print(x string) {
+	fmt.Println(x)
+}
+
+func (p *Print) PrintResult(task_id string, client *winton.Client, size int) {
+	for _, task := range client.Tasks {
+		if task.Task_UID == task_id {
+			res, err := winton.DecodeResult(task.Result)
+			if err != nil {
+				p.Errorf("Error decoding result: %s", err)
+				return
+			}
+
+			if size > 0 {
+				p.BeaconRecv(size)
+			}
+			p.Print(res)
+		}
+	}
+
 }
