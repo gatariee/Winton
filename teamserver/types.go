@@ -31,13 +31,3 @@ type Callback struct {
 	AgentUID     string
 	LastCallback int
 }
-
-type TeamServer struct {
-	IP             string
-	Port           string
-	Password       string
-	AgentList      []Agent
-	AgentTasks     []Task
-	AgentResults   []Result
-	AgentCallbacks []Callback
-}
