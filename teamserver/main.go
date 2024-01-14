@@ -19,7 +19,7 @@ func main() {
 	_winton_error("Only HTTP listener is currently supported, starting HTTP listener...")
 
 	const HTTP_PORT = "80"
-	start_http_listener(ts, HTTP_PORT)
+	Start(ts, HTTP_PORT)
 	_winton_print("Default: HTTP Listener started on [" + ts.IP + ":" + HTTP_PORT + "]")
 
 	go ts.checkBeacons()
