@@ -388,7 +388,13 @@ func Run() error {
 
 			fmt.Println("[*] Assembly length:", len(raw_bytes))
 
-			res, err := commands.Execute_Assembly(raw_bytes)
+			args := []string{}
+			if len(command_args) > 1 {
+				args = command_args[1:]
+			}
+			fmt.Println("[*] Assembly args: ", args)
+
+			res, err := commands.Execute_Assembly(raw_bytes, args)
 			if err != nil {
 				fmt.Println("[!] Error executing assembly")
 				fmt.Println(err)

