@@ -17,11 +17,11 @@ linux: teamserver-x64 teamserver-x86
 
 teamserver-x64:
 	@echo [*] Building $(BINARY_NAME)-linux-x64...
-	@set GOOS=linux&& set GOARCH=amd64&& go build -o $(BIN_FOLDER)/$(BINARY_NAME)-linux-x64
+	GOOS=linux GOARCH=amd64 go build -o $(BIN_FOLDER)/$(BINARY_NAME)-linux-x64
 
 teamserver-x86:
 	@echo [*] Building $(BINARY_NAME)-linux-x86...
-	@set GOOS=linux&& set GOARCH=386&& go build -o $(BIN_FOLDER)/$(BINARY_NAME)-linux-x86
+	GOOS=linux GOARCH=386 go build -o $(BIN_FOLDER)/$(BINARY_NAME)-linux-x86
 
 teamserver-win64:
 	@echo [*] Building $(BINARY_NAME)-win64.exe...
